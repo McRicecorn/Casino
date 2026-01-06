@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. Der Datenbank-Container für die Slotmachine
+  slotmachine-db:
+    image: postgres:latest
+    container_name: slotmachine-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: geheim
+      POSTGRES_DB: slotmachine_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # Hier nutzen wir das Named Volume, um OneDrive-Probleme zu umgehen
+      - slotmachine_data:/var/lib/postgresql/data
+
+  # 2. Der Slotmachine-Service
+  slotmachine-service:
+    build:
+      context: ./Slotmachine
+      dockerfile: Dockerfile
+    container_name: slotmachine-service
+    ports:
+      ["8081:8081"]
+    environment:
+      # Damit Java weiß, wie es die DB im Docker-Netzwerk findet
+      SPRING_DATASOURCE_URL: jdbc:postgresql://slotmachine-db:5432/slotmachine_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: geheim
+    depends_on:
+      - slotmachine-db
+
+volumes:
+  slotmachine_data:
