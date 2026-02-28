@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Void> handleUserNotFound() {
+    public ResponseEntity<Void> handleNotFound() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
@@ -20,7 +20,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Void> handleGenericValidation() {
+    public ResponseEntity<Void> handleIllegalArgument() {
+        return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<Void> handleNumberFormat() {
         return ResponseEntity.badRequest().build();
     }
 }
