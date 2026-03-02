@@ -5,7 +5,6 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # 3. Die fertige Programmdatei (JAR) in den Container kopieren
-# Hinweis: Wir gehen davon aus, dass Maven die Datei in 'target/' ablegt
 COPY target/*.jar app.jar
 
 # 4. Befehl zum Starten der Anwendung

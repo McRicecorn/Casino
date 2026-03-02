@@ -1,4 +1,4 @@
-package com.example.casino.casino;
+package com.WS26.Casino;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
