@@ -2,9 +2,11 @@ package de.casino.banking_service.user.controller;
 
 
 import de.casino.banking_service.user.handler.UserHandler;
+import de.casino.banking_service.user.mapper.UserMapper;
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.view.CreateUserRequest;
 import de.casino.banking_service.user.view.UpdateUserRequest;
+import de.casino.banking_service.user.view.UserResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,44 +27,47 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserEntity> getUserById(@PathVariable Long id) {
-
-           return ResponseEntity.ok(userHandler.getUserById(id));
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+            UserEntity user = userHandler.getUserById(id);
+           return ResponseEntity.ok(UserMapper.toResponse(user));
 
 
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
-        return ResponseEntity.ok(userHandler.getAllUsers());
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+
+        return ResponseEntity.ok(UserMapper.toResponseList(userHandler.getAllUsers()));
     }
 
     @PostMapping("/user")
-    public ResponseEntity<UserEntity> createUser(@RequestBody CreateUserRequest userRequest) {
-            UserEntity user = userHandler.createUser(userRequest.first_name, userRequest.last_name);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user); // 201 Created
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest userRequest) {
+            UserEntity user = userHandler.createUser(userRequest.firstName(), userRequest.lastName());
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(UserMapper.toResponse(user)); // 201 Created
 
     }
 
     @PutMapping("/user/{id}")
-    public ResponseEntity<UserEntity> renameUser(@PathVariable Long id,
+    public ResponseEntity<UserResponse> renameUser(@PathVariable Long id,
                                                  @RequestBody UpdateUserRequest userRequest) {
 
-        UserEntity user = userHandler.rename(id, userRequest.first_name, userRequest.last_name);
-        return ResponseEntity.ok(user); // 200 OK
+        UserEntity user = userHandler.rename(id, userRequest.firstName(), userRequest.lastName());
+        return ResponseEntity.ok(UserMapper.toResponse(user)); // 200 OK
 
     }
 
     @DeleteMapping("/user/{id}")
-    public ResponseEntity<UserEntity> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> deleteUser(@PathVariable Long id) {
 
-            UserEntity user = userHandler.deleteUserByID(id);
-            return ResponseEntity.ok(user); // 200 OK, ohne ID sichtbar
+            userHandler.deleteUserByID(id);
+            return ResponseEntity.noContent().build(); 
 
     }
 
     @PostMapping("/user/{id}/deposit/{amount}/{decimals}")
-    public ResponseEntity<UserEntity> deposit(
+    public ResponseEntity<UserResponse> deposit(
             @PathVariable Long id,
             @PathVariable String amount,
             @PathVariable String decimals) {
@@ -70,7 +75,7 @@ public class UserController {
 
             BigDecimal value = new BigDecimal(amount + "." + decimals);
             UserEntity updatedUser = userHandler.deposit(id, value);
-            return ResponseEntity.ok(updatedUser); // 200 OK
+            return ResponseEntity.ok(UserMapper.toResponse(updatedUser)); // 200 OK
 
 
 }

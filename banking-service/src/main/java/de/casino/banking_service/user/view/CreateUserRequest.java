@@ -1,6 +1,11 @@
 package de.casino.banking_service.user.view;
 
-public class CreateUserRequest {
-    public String first_name;
-    public String last_name;
-}
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
+    public record CreateUserRequest(
+            @JsonProperty("first_name") String firstName,
+            @JsonProperty("last_name") String lastName) {
+
+    }
+

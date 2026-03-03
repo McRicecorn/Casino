@@ -1,6 +1,6 @@
 package de.casino.banking_service.user.handler;
 
-import de.casino.banking_service.exceptions.UserNotFoundException;
+import de.casino.banking_service.user.exceptions.UserNotFoundException;
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.UserRepository;
 import org.springframework.stereotype.Service;

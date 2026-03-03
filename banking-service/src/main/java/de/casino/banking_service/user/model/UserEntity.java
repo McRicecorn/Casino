@@ -1,5 +1,6 @@
 package de.casino.banking_service.user.model;
 
+import de.casino.banking_service.user.exceptions.InvalidUserDataException;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -26,10 +27,10 @@ public class UserEntity {
 
     public UserEntity(String firstName, String lastName) {
         if (firstName == null || firstName.isBlank()) {
-            throw new IllegalArgumentException("First name invalid");
+            throw new InvalidUserDataException("First name invalid");
         }
         if (lastName == null || lastName.isBlank()) {
-            throw new IllegalArgumentException("Last name invalid");
+            throw new InvalidUserDataException("Last name invalid");
         }
         this.firstName = firstName.trim();
         this.lastName = lastName.trim();
@@ -46,20 +47,21 @@ public class UserEntity {
     }
 
     public void withdraw(BigDecimal amount) {
-            validateAmount(amount);
-        if (balance.compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Insufficient funds");
-        }
+        validateAmount(amount);
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Amount must be positive");
+            throw new InvalidUserDataException("Amount must be positive");
         }
+        if (balance.compareTo(amount) < 0) {
+            throw new InvalidUserDataException("Insufficient funds");
+        }
+
         this.balance = this.balance.subtract(amount);
     }
 
     public void deposit(BigDecimal amount) {
         validateAmount(amount);
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Amount must be positive");
+            throw new InvalidUserDataException("Amount must be positive");
         }
         this.balance = this.balance.add(amount);
     }
@@ -67,28 +69,28 @@ public class UserEntity {
     //helprer methods
     private void validateAmount(BigDecimal amount) {
         if (amount == null) {
-            throw new IllegalArgumentException("Amount must not be null");
+            throw new InvalidUserDataException("Amount must not be null");
         }
-
-        if (amount.scale() > 2) {
-            throw new IllegalArgumentException("Amount must have no more than 2 decimal places");
-        }
-
         if (amount.equals(BigDecimal.ZERO)) {
-            throw new IllegalArgumentException("Amount is zero");
+            throw new InvalidUserDataException("Amount is zero");
         }
+        if (amount.scale() > 2) {
+            throw new InvalidUserDataException("Amount must have no more than 2 decimal places");
+        }
+
+
 
     }
 
     private void validateName(String firstName, String lastName) {
         if (firstName == null || firstName.isBlank()) {
-            throw new IllegalArgumentException("First name invalid");
+            throw new InvalidUserDataException("First name invalid");
         }
         if (lastName == null || lastName.isBlank()) {
-            throw new IllegalArgumentException("Last name invalid");
+            throw new InvalidUserDataException("Last name invalid");
         }
         if (firstName.equals(this.firstName) && lastName.equals(this.lastName)) {
-            throw new IllegalArgumentException("New name must be different from the current name");
+            throw new InvalidUserDataException("New name must be different from the current name");
         }
     }
 
