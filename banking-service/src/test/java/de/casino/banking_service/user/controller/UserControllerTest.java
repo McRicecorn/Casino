@@ -41,8 +41,8 @@ class UserControllerTest {
 
         mockMvc.perform(get("/casino/bank/api/user/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.lastName").value("Doe"));
+                .andExpect(jsonPath("$.first_name").value("John"))
+                .andExpect(jsonPath("$.last_name").value("Doe"));
 
     }
 
@@ -93,8 +93,10 @@ class UserControllerTest {
                         .contentType("application/json")
                         .content(userJson))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName").value("Alice"))
-                .andExpect(jsonPath("$.lastName").value("Smith"));
+                .andExpect(jsonPath("$.first_name").value("Alice"))
+                .andExpect(jsonPath("$.last_name").value("Smith"))
+                .andExpect(jsonPath("$.balance").value(0));
+                //ID noch?
     }
 
     @Test
@@ -202,6 +204,35 @@ class UserControllerTest {
         mockMvc.perform(post("/casino/bank/api/user/1/deposit/abc/xy"))
                 .andExpect(status().isBadRequest());
     }
+    @Test
+    void deposit_shouldReturn404_whenUserNotFound() throws Exception {
+
+        when(userHandler.deposit(eq(999L), any()))
+                .thenThrow(new UserNotFoundException(999L));
+
+        mockMvc.perform(post("/casino/bank/api/user/999/deposit/100/00"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deposit_shouldReturn400_whenInvalidAmount() throws Exception {
+
+        when(userHandler.deposit(eq(1L), any()))
+                .thenThrow(new InvalidUserDataException("invalid"));
+
+        mockMvc.perform(post("/casino/bank/api/user/1/deposit/100/00"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deposit_shouldReturn400_whenDecimalsMoreThanTwo() throws Exception {
+
+        when(userHandler.deposit(eq(1L), any()))
+                .thenThrow(new InvalidUserDataException("invalid"));
+
+        mockMvc.perform(post("/casino/bank/api/user/1/deposit/100/000"))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void renameUser_shouldReturn200() throws Exception {
@@ -222,8 +253,9 @@ class UserControllerTest {
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("New"))
-                .andExpect(jsonPath("$.lastName").value("Name"));
+                .andExpect(jsonPath("$.first_name").value("New"))
+                .andExpect(jsonPath("$.last_name").value("Name"))
+                .andExpect(jsonPath("$.balance").value(0));
     }
 
     @Test
@@ -274,7 +306,7 @@ class UserControllerTest {
 
         mockMvc.perform(delete("/casino/bank/api/user/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("John"));
+                .andExpect(jsonPath("$.first_name").value("John"));
     }
 
     @Test
@@ -287,25 +319,7 @@ class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void deposit_shouldReturn404_whenUserNotFound() throws Exception {
 
-        when(userHandler.deposit(eq(999L), any()))
-                .thenThrow(new UserNotFoundException(999L));
-
-        mockMvc.perform(post("/casino/bank/api/user/999/deposit/100/00"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void deposit_shouldReturn400_whenInvalidAmount() throws Exception {
-
-        when(userHandler.deposit(eq(1L), any()))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        mockMvc.perform(post("/casino/bank/api/user/1/deposit/100/00"))
-                .andExpect(status().isBadRequest());
-    }
     @Test
     void withdraw_shouldReturn200_whenValid() throws Exception {
 

@@ -5,6 +5,7 @@ import de.casino.banking_service.user.handler.UserHandler;
 import de.casino.banking_service.user.mapper.UserMapper;
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.view.CreateUserRequest;
+import de.casino.banking_service.user.view.DeleteUserResponse;
 import de.casino.banking_service.user.view.UpdateUserRequest;
 import de.casino.banking_service.user.view.UserResponse;
 import jakarta.validation.Valid;
@@ -60,10 +61,10 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<DeleteUserResponse> deleteUser(@PathVariable Long id) {
 
-            userHandler.deleteUserByID(id);
-            return ResponseEntity.ok().build();
+            UserEntity user = userHandler.deleteUserByID(id);
+            return ResponseEntity.ok(UserMapper.DeleteUserResponse(user));
 
     }
 
