@@ -7,6 +7,7 @@ import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.view.CreateUserRequest;
 import de.casino.banking_service.user.view.UpdateUserRequest;
 import de.casino.banking_service.user.view.UserResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/user")
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest userRequest) {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest userRequest) {
             UserEntity user = userHandler.createUser(userRequest.firstName(), userRequest.lastName());
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -51,7 +52,7 @@ public class UserController {
 
     @PutMapping("/user/{id}")
     public ResponseEntity<UserResponse> renameUser(@PathVariable Long id,
-                                                 @RequestBody UpdateUserRequest userRequest) {
+                                               @Valid  @RequestBody UpdateUserRequest userRequest) {
 
         UserEntity user = userHandler.rename(id, userRequest.firstName(), userRequest.lastName());
         return ResponseEntity.ok(UserMapper.toResponse(user)); // 200 OK
@@ -62,7 +63,7 @@ public class UserController {
     public ResponseEntity<UserResponse> deleteUser(@PathVariable Long id) {
 
             userHandler.deleteUserByID(id);
-            return ResponseEntity.noContent().build(); 
+            return ResponseEntity.ok().build();
 
     }
 
@@ -79,10 +80,15 @@ public class UserController {
 
 
 }
-/*
     @PostMapping("/user/{id}/withdraw/{amount}/{decimals}")
-    public void withdraw(@PathVariable Long id, @PathVariable BigDecimal amount) {
+    public ResponseEntity<UserResponse> withdraw(
+            @PathVariable Long id,
+            @PathVariable String amount,
+            @PathVariable String decimals) {
 
+        BigDecimal value = new BigDecimal(amount + "." + decimals);
+        UserEntity updatedUser = userHandler.withdraw(id, value);
+
+        return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
     }
-*/
 }

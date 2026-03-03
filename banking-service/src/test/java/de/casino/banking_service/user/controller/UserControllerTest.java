@@ -1,5 +1,7 @@
 package de.casino.banking_service.user.controller;
 
+import de.casino.banking_service.user.exceptions.GlobalExceptionHandler;
+import de.casino.banking_service.user.exceptions.InvalidAmountException;
 import de.casino.banking_service.user.exceptions.InvalidUserDataException;
 import de.casino.banking_service.user.exceptions.UserNotFoundException;
 import de.casino.banking_service.user.handler.UserHandler;
@@ -303,5 +305,36 @@ class UserControllerTest {
 
         mockMvc.perform(post("/casino/bank/api/user/1/deposit/100/00"))
                 .andExpect(status().isBadRequest());
+    }
+    @Test
+    void withdraw_shouldReturn200_whenValid() throws Exception {
+
+        UserEntity user = new UserEntity("Max", "Mustermann");
+
+        when(userHandler.withdraw(eq(1L), any()))
+                .thenReturn(user);
+
+        mockMvc.perform(post("/casino/bank/api/user/1/withdraw/50/00"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void withdraw_shouldReturn400_whenInvalidAmount() throws Exception {
+
+        when(userHandler.withdraw(eq(1L), any()))
+                .thenThrow(new InvalidAmountException("invalid"));
+
+        mockMvc.perform(post("/casino/bank/api/user/1/withdraw/50/00"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void withdraw_shouldReturn404_whenUserNotFound() throws Exception {
+
+        when(userHandler.withdraw(eq(999L), any()))
+                .thenThrow(new UserNotFoundException(999L));
+
+        mockMvc.perform(post("/casino/bank/api/user/999/withdraw/50/00"))
+                .andExpect(status().isNotFound());
     }
 }

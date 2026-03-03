@@ -1,8 +1,8 @@
-package de.casino.banking_service.user.controller;
+package de.casino.banking_service.user.exceptions;
 
-import de.casino.banking_service.user.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 @RestControllerAdvice
@@ -23,6 +23,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NumberFormatException.class)
     public ResponseEntity<Void> handleNumberFormat() {
+        return ResponseEntity.badRequest().build();
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Void> handleValidationException() {
         return ResponseEntity.badRequest().build();
     }
 }
