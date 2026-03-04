@@ -13,8 +13,4 @@ public class CasinoApplication {
 		SpringApplication.run(CasinoApplication.class, args);
 	}
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
 }
