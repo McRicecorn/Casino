@@ -1,11 +1,11 @@
-package com.example.casino.casino.Model;
+package com.example.casino.casino.model;
 
-import com.example.casino.casino.Utility.ErrorResult;
-import com.example.casino.casino.Utility.ErrorWrapper;
+import com.example.casino.casino.utility.ErrorResult;
+import com.example.casino.casino.utility.ErrorWrapper;
 
 import java.time.LocalDateTime;
 
-public interface ISlotmachineEntity {
+public interface ISlotmachineGameEntity {
 
     long getId();
 

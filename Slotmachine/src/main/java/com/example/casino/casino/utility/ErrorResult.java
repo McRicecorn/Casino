@@ -1,4 +1,4 @@
-package com.example.casino.casino.Utility;
+package com.example.casino.casino.utility;
 
 import java.util.Optional;
 

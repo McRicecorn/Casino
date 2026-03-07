@@ -1,16 +1,15 @@
-package com.example.casino.casino.Model;
+package com.example.casino.casino.model;
 
-import com.example.casino.casino.Utility.ErrorResult;
-import com.example.casino.casino.Utility.ErrorWrapper;
-import com.example.casino.casino.Utility.Result;
+import com.example.casino.casino.utility.ErrorResult;
+import com.example.casino.casino.utility.ErrorWrapper;
+import com.example.casino.casino.utility.Result;
 import jakarta.persistence.*;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "slotmachine_game")
-public class SlotmachineEntity implements ISlotmachineEntity {
+public class SlotmachineGameEntity implements ISlotmachineGameEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,9 +34,9 @@ public class SlotmachineEntity implements ISlotmachineEntity {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
-    protected SlotmachineEntity() {}
+    protected SlotmachineGameEntity() {}
 
-    private SlotmachineEntity(long userId, double betAmount, double winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
+    private SlotmachineGameEntity(long userId, double betAmount, double winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
         this.userId = userId;
         this.betAmount = betAmount;
         this.winAmount = winAmount;
@@ -46,8 +45,8 @@ public class SlotmachineEntity implements ISlotmachineEntity {
         this.timestamp = timestamp;
     }
 
-    public static Result<ISlotmachineEntity, ErrorWrapper> create(long userId, double betAmount, double winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
-        var requested = new SlotmachineEntity(userId, betAmount, winAmount, isWinning, slotResult, timestamp);
+    public static Result<ISlotmachineGameEntity, ErrorWrapper> create(long userId, double betAmount, double winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
+        var requested = new SlotmachineGameEntity(userId, betAmount, winAmount, isWinning, slotResult, timestamp);
 
         var isBetAmountValid = requested.isBetAmountValid();
 
@@ -60,7 +59,7 @@ public class SlotmachineEntity implements ISlotmachineEntity {
     private ErrorResult<ErrorWrapper> isBetAmountValid() {
         //ist der Einsatz negativ? -> Fehler
         if (betAmount <= 0) {
-            return ErrorResult.failure(ErrorWrapper.SLOT_MODEL_INVALID_BET_AMOUNT);
+            return ErrorResult.failure(ErrorWrapper.INVALID_BET_AMOUNT);
         }
         return ErrorResult.success();
     }
@@ -104,7 +103,7 @@ public class SlotmachineEntity implements ISlotmachineEntity {
     @Override
     public ErrorResult<ErrorWrapper> setBetAmount(double betAmount){
         if (betAmount <= 0) {
-            return ErrorResult.failure(ErrorWrapper.SLOT_MODEL_INVALID_BET_AMOUNT);
+            return ErrorResult.failure(ErrorWrapper.INVALID_BET_AMOUNT);
         }
         this.betAmount = betAmount;
         return ErrorResult.success();

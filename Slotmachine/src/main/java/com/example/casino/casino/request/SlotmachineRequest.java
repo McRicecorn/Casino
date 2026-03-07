@@ -1,4 +1,4 @@
-package com.example.casino.casino.Request;
+package com.example.casino.casino.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,20 +8,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class SlotmachineRequest implements ISlotmachineRequest{
 
     @Schema(description = "unique identifier of the user", example = "1")
-    private final long userId;
+    private final long user;
+
     @Schema(description = "the invested money", example = "100")
     private final double betAmount;
 
     @JsonCreator
-    public SlotmachineRequest(@JsonProperty("UserId") long userId,
+    public SlotmachineRequest(@JsonProperty("user") long user,
                               @JsonProperty("betAmount") double betAmount){
-        this.userId = userId;
+        this.user = user;
         this.betAmount = betAmount;
     }
 
     @Override
-    public long getUserId() {
-        return userId;
+    public long getUser() {
+        return user;
     }
 
     @Override

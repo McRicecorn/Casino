@@ -1,6 +1,6 @@
-package com.example.casino.casino.Request;
+package com.example.casino.casino.request;
 
 public interface ISlotmachineRequest {
-    long getUserId();
+    long getUser();
     double getBetAmount();
 }
