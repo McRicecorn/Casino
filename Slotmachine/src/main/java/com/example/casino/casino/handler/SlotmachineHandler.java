@@ -35,6 +35,9 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     @Value("${casino.banking.url}") // in application.properties
     private String bankingUrl;
 
+    @Value("${spring.application.name}")
+    private String serviceName;
+
     private static final Random RANDOM = new Random();
 
 
@@ -106,8 +109,9 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         //win amount minus bet amount for banking Service/balance
         double netAmount = winAmount - betAmount;
 
+
         //create request for banking service
-        IBankingTransactionRequest transactionRequest = new BankingTransactionRequest("Slotmachine", netAmount);
+        IBankingTransactionRequest transactionRequest = new BankingTransactionRequest(serviceName, netAmount);
 
         String transactionUrl = bankingUrl + "/transaction/user/" + request.getUser();
 
