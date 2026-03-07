@@ -51,13 +51,18 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     @Override
     public Result<ISlotmachineResponse, ErrorWrapper> play(ISlotmachineRequest request) {
 
-        //TODO Logik implementieren
+        double betAmount = request.getBetAmount();
+
+        //check, if bet amount is less than 0
+        if (betAmount <= 0) {
+            return Result.failure(ErrorWrapper.INVALID_BET_AMOUNT);
+        }
 
         //get user information from banking API
         String userURL = bankingUrl + "user/" + request.getUser();
         long userId = request.getUser();
         BankingUserResponse user;
-        double betAmount = request.getBetAmount();
+
 
         try{
              user = restTemplate.getForObject(userURL, BankingUserResponse.class);
@@ -113,7 +118,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         //create request for banking service
         IBankingTransactionRequest transactionRequest = new BankingTransactionRequest(serviceName, netAmount);
 
-        String transactionUrl = bankingUrl + "/transaction/user/" + request.getUser();
+        String transactionUrl = bankingUrl + "transaction/user/" + request.getUser();
 
         //send request
         try {
