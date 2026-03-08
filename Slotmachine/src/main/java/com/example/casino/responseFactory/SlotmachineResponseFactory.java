@@ -1,0 +1,33 @@
+package com.example.casino.responseFactory;
+
+import com.example.casino.model.ISlotmachineGameEntity;
+import com.example.casino.response.ISlotmachineResponse;
+import com.example.casino.response.SlotmachineResponse;
+import org.springframework.stereotype.Component;
+
+@Component
+public class SlotmachineResponseFactory implements ISlotmachineResponseFactory {
+
+    @Override
+    public ISlotmachineResponse createSlotmachineResponse(ISlotmachineGameEntity gameEntity) {
+
+        String message;
+        if (gameEntity.isWinning()) {
+            if (gameEntity.getWinAmount() >= gameEntity.getBetAmount() * 10) {
+                message = "FANTASTIC! That was an epic WIN! Congrats \uD83E\uDD73";
+            } else {
+                message = "You WON! Your bank balance will thank you.";
+            }
+        } else {
+            message = "Nothing won \uD83D\uDE22❌\uD83D\uDE35. Better luck next time! \uD83E\uDD1E";
+        }
+
+        return new SlotmachineResponse(
+                gameEntity.getId(),
+                gameEntity.getUserId(),
+                gameEntity.getWinAmount() - gameEntity.getBetAmount(),
+                gameEntity.isWinning(),
+                gameEntity.getSlotResult(),
+                message);
+    }
+}
