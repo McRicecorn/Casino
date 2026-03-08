@@ -67,13 +67,16 @@ public class SlotmachineController {
         }
     }
 
-    @GetMapping("/info/rules")
+    @GetMapping(value = "/info/rules", produces = "text/plain;charset=UTF-8")
     public ResponseEntity<String> readRules() {
         return ResponseEntity.ok(handler.getRules());
     }
 
-    @GetMapping("/info/chances")
+    @GetMapping(value = "/info/chances", produces = "text/plain;charset=UTF-8")
     public ResponseEntity<String> readChances() {
         return ResponseEntity.ok(handler.calculateChances());
     }
+
+    //TODO GET http://localhost:8081/casino/slots/api/stats/user/{user_id} --> Stats eines bestimmten Users zurückgeben (S. 12 PDF)
+    //TODO GET http:\\localhost:8081\casino\slots\api\stats --> Stats aller User gesammelt anzeigen (S. 12 PDF)
 }

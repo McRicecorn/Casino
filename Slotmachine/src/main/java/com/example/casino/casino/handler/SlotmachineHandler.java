@@ -64,11 +64,14 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         BankingUserResponse user;
 
 
-        try{
-             user = restTemplate.getForObject(userURL, BankingUserResponse.class);
-        }catch(Exception e){
-            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
-        }
+//        try{
+//             user = restTemplate.getForObject(userURL, BankingUserResponse.class);
+//        }catch(Exception e){
+//            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
+//        }
+
+        //for testing without banking service
+        user = new BankingUserResponse(1, "horst", "schlemmer", 1000);
 
         //Check if user has bank account
         if (user == null) {
@@ -121,11 +124,11 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         String transactionUrl = bankingUrl + "transaction/user/" + request.getUser();
 
         //send request
-        try {
-            restTemplate.postForObject(transactionUrl, transactionRequest, Object.class);
-        } catch (Exception e) {
-            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
-        }
+//        try {
+//            restTemplate.postForObject(transactionUrl, transactionRequest, Object.class);
+//        } catch (Exception e) {
+//            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
+//        }
 
         //if successful, create game entity
         var entityResult = modelFactory.createSlotmachine(

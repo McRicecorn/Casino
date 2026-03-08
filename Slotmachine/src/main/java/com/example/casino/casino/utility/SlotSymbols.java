@@ -7,6 +7,5 @@ public enum SlotSymbols {
     MANGO,
     ORANGE,
     PLUM,
-    KIWI,
     APPLE
 }

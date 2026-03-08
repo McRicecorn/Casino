@@ -24,6 +24,7 @@ public class SlotmachineResponseFactory implements ISlotmachineResponseFactory {
 
         return new SlotmachineResponse(
                 gameEntity.getId(),
+                gameEntity.getUserId(),
                 gameEntity.getWinAmount() - gameEntity.getBetAmount(),
                 gameEntity.isWinning(),
                 gameEntity.getSlotResult(),

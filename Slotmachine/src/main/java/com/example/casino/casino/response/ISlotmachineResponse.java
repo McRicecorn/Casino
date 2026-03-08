@@ -3,7 +3,10 @@ package com.example.casino.casino.response;
 import java.util.List;
 
 public interface ISlotmachineResponse {
+
     long getUser();
+
+    long getGameId();
 
     double getAmount();
 
@@ -12,5 +15,4 @@ public interface ISlotmachineResponse {
     List<String> getSlotStates();
 
     String getMessage();
-
 }

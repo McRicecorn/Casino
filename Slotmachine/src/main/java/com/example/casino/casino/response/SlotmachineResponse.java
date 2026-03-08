@@ -10,6 +10,9 @@ import java.util.List;
 public class SlotmachineResponse implements ISlotmachineResponse{
 
     @Schema(description = "unique identifier of the game", example = "1")
+    private long gameId;
+
+    @Schema(description = "unique identifier of the player", example = "1")
     private long user;
 
     @Schema(description = "Amount/Money earned/lost", example = "6")
@@ -26,16 +29,23 @@ public class SlotmachineResponse implements ISlotmachineResponse{
     private String message;
 
 
-    public SlotmachineResponse(long user, double amount, boolean winning, String slotStates, String message) {
+    public SlotmachineResponse(long gameId, long user, double amount, boolean winning, String slotStates, String message) {
+        this.gameId = gameId;
         this.user = user;
         this.amount = amount;
         this.winning = winning;
         this.slotStates = Arrays.asList(slotStates.split(","));
         this.message = message;
     }
+
     @Override
-    public long getUser() {
+    public long getUser(){
         return user;
+    }
+
+    @Override
+    public long getGameId() {
+        return gameId;
     }
     @Override
     public double getAmount() {
