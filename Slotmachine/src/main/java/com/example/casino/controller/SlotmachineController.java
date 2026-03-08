@@ -76,6 +76,14 @@ public class SlotmachineController {
         return ResponseEntity.ok(handler.calculateChances());
     }
 
-    //TODO GET http://localhost:8081/casino/slots/api/stats/user/{user_id} --> Stats eines bestimmten Users zurückgeben (S. 12 PDF)
-    //TODO GET http:\\localhost:8081\casino\slots\api\stats --> Stats aller User gesammelt anzeigen (S. 12 PDF)
+    @GetMapping("/stats")
+    public ResponseEntity<?> readGlobalStats() {
+        return ResponseEntity.ok(handler.readGlobalStats());
+    }
+
+    @GetMapping("/stats/user/{user_id}")
+    public ResponseEntity<?> readUserStats(@PathVariable("user_id") long userId) {
+        return ResponseEntity.ok(handler.readUserStats(userId));
+    }
+    //TODO total_house_profit_from_client und total_profit in ResponseFactory kann nicht stimmen!!
 }

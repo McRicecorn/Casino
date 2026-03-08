@@ -1,5 +1,7 @@
 package com.example.casino.handler;
 
+import com.example.casino.dto.stats.IGlobalStatsResponse;
+import com.example.casino.dto.stats.IUserStatsResponse;
 import com.example.casino.dto.transaction.BankingTransactionRequest;
 import com.example.casino.dto.transaction.IBankingTransactionRequest;
 import com.example.casino.dto.user.BankingUserResponse;
@@ -159,7 +161,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
 
         var finalResult = new ArrayList<ISlotmachineResponse>();
 
-        for (SlotmachineGameEntity slotmachineGameEntity : result){
+        for (ISlotmachineGameEntity slotmachineGameEntity : result){
             var response = responseFactory.createSlotmachineResponse(slotmachineGameEntity);
             finalResult.add(response);
         }
@@ -211,6 +213,29 @@ public class SlotmachineHandler implements ISlotmachineHandler {
                 "Two matching symbols win a prize of 2 x the bet amount!\n" +
                 "No matching symbols loose the bet amount.\n" +
                 "The net result will be automatically updated in your banking account.";
+    }
+
+    @Override
+    public Result<IUserStatsResponse, ErrorWrapper> readUserStats(long userId){
+
+        //find all games with specific userId
+        List<ISlotmachineGameEntity> userGames = repository.findByUserId(userId);
+
+        IUserStatsResponse result = responseFactory.createUserStatsResponse(userGames);
+        return Result.success(result);
+    }
+
+    @Override
+    public Result<IGlobalStatsResponse, ErrorWrapper> readGlobalStats(){
+        //save all games in a list
+        List<SlotmachineGameEntity> allGames = repository.findAll();
+        if (allGames.isEmpty()) {
+            return Result.failure(ErrorWrapper.NO_GAMES_FOUND);
+        }
+        //send to the response Factory
+        IGlobalStatsResponse result = responseFactory.createGlobalStatsResponse(allGames);
+        return Result.success(result);
+
     }
 
 }

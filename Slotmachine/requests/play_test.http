@@ -14,3 +14,9 @@ Content-Type: application/json
 GET http://localhost:8082/casino/slots/api/stat/games
 ###
 GET http://localhost:8082/casino/slots/api/stat/1
+
+###
+GET http://localhost:8082/casino/slots/api/stats
+
+###
+GET http://localhost:8082/casino/slots/api/stats/user/1
