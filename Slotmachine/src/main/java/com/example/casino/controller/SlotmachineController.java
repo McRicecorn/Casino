@@ -78,12 +78,29 @@ public class SlotmachineController {
 
     @GetMapping("/stats")
     public ResponseEntity<?> readGlobalStats() {
-        return ResponseEntity.ok(handler.readGlobalStats());
+        var result = handler.readGlobalStats();
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result.getSuccessData().get());
+        }else{
+            return ResponseEntity.status(
+                    result.getFailureData().get().getHttpStatus())
+                    .body(result.getFailureData().get().getMessage());
+        }
     }
 
     @GetMapping("/stats/user/{user_id}")
     public ResponseEntity<?> readUserStats(@PathVariable("user_id") long userId) {
-        return ResponseEntity.ok(handler.readUserStats(userId));
+        var result = handler.readUserStats(userId);
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result.getSuccessData().get());
+        }else{
+            return ResponseEntity.status(
+                    result.getFailureData().get().getHttpStatus())
+                    .body(result.getFailureData().get().getMessage());
+        }
     }
-    //TODO total_house_profit_from_client und total_profit in ResponseFactory kann nicht stimmen!!
+
+    //TODO Geldbeträge auf BigDecimal umstellen!!!
+    //TODO Tests schreiben !!!
+
 }

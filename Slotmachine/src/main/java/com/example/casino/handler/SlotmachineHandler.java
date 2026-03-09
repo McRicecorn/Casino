@@ -66,14 +66,14 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         BankingUserResponse user;
 
 
-//        try{
-//             user = restTemplate.getForObject(userURL, BankingUserResponse.class);
-//        }catch(Exception e){
-//            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
-//        }
+        try{
+             user = restTemplate.getForObject(userURL, BankingUserResponse.class);
+        }catch(Exception e){
+            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
+        }
 
         //for testing without banking service
-        user = new BankingUserResponse(1, "horst", "schlemmer", 1000);
+        //user = new BankingUserResponse(1, "horst", "schlemmer", 1000);
 
         //Check if user has bank account
         if (user == null) {
@@ -126,11 +126,11 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         String transactionUrl = bankingUrl + "transaction/user/" + request.getUser();
 
         //send request
-//        try {
-//            restTemplate.postForObject(transactionUrl, transactionRequest, Object.class);
-//        } catch (Exception e) {
-//            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
-//        }
+        try {
+            restTemplate.postForObject(transactionUrl, transactionRequest, Object.class);
+        } catch (Exception e) {
+            return Result.failure(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR);
+        }
 
         //if successful, create game entity
         var entityResult = modelFactory.createSlotmachine(
@@ -172,6 +172,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     @Override
     public Result<ISlotmachineResponse, ErrorWrapper> readGame(long id){
         var target = repository.findById(id);
+
         if (target.isEmpty()){
             return Result.failure(ErrorWrapper.GAME_NOT_FOUND);
         }
@@ -220,7 +221,10 @@ public class SlotmachineHandler implements ISlotmachineHandler {
 
         //find all games with specific userId
         List<ISlotmachineGameEntity> userGames = repository.findByUserId(userId);
-
+        if (userGames.isEmpty()){
+            return Result.failure(ErrorWrapper.NO_GAMES_FOUND);
+        }
+        //send to the response Factory
         IUserStatsResponse result = responseFactory.createUserStatsResponse(userGames);
         return Result.success(result);
     }

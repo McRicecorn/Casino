@@ -34,7 +34,7 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
-    protected SlotmachineGameEntity() {}
+    private SlotmachineGameEntity() {}
 
     private SlotmachineGameEntity(long userId, double betAmount, double winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
         this.userId = userId;
