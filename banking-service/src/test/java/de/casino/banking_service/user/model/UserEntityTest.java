@@ -1,9 +1,12 @@
 package de.casino.banking_service.user.model;
 
 
+import de.casino.banking_service.user.exceptions.InvalidAmountException;
+import de.casino.banking_service.user.exceptions.InvalidUserDataException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,37 +51,37 @@ class UserEntityTest {
     //edge cases for UserEntity class - creation
     @Test
     void createUserEntity_nullFirstName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             new UserEntity(null, "Doe");
         });
     }
     @Test
     void createUserEntity_nullLastName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             new UserEntity("John", null);
         });
     }
     @Test
     void createUserEntity_blankFirstName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             new UserEntity("", "Doe");
         });
     }
     @Test
     void createUserEntity_blankLastName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             new UserEntity("John", "");
         });
     }
     @Test
     void createUserEntity_whitespaceFirstName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             new UserEntity("   ", "Doe");
         });
     }
     @Test
     void createUserEntity_whitespaceLastName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             new UserEntity("John", "   ");
         });
     }
@@ -89,7 +92,7 @@ class UserEntityTest {
     void withdraw_InsufficientFunds() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.withdraw(new BigDecimal("50.00"));
         });
 
@@ -98,7 +101,7 @@ class UserEntityTest {
     void withdraw_NegativeAmount() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.withdraw(new BigDecimal("-10.00"));
         });
 
@@ -108,7 +111,7 @@ class UserEntityTest {
     void withdraw_NullAmount() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.withdraw(null);
         });
 
@@ -117,7 +120,7 @@ class UserEntityTest {
     void withdraw_TooManyDecimalPlaces() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.withdraw(new BigDecimal("10.123"));
         });
     }
@@ -128,7 +131,7 @@ class UserEntityTest {
     void withdraw_ZeroAmount() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.withdraw(BigDecimal.ZERO);
         });
 
@@ -150,7 +153,7 @@ class UserEntityTest {
     void deposit_NegativeAmount() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.deposit(new BigDecimal("-10.00"));
         });
 
@@ -160,7 +163,7 @@ class UserEntityTest {
     void deposit_NullAmount() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.deposit(null);
         });
 
@@ -170,7 +173,7 @@ class UserEntityTest {
     void deposit_TooManyDecimalPlaces() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.deposit(new BigDecimal("10.123"));
         });
 
@@ -180,18 +183,60 @@ class UserEntityTest {
     void deposit_ZeroAmount() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidAmountException.class, () -> {
             user.deposit(BigDecimal.ZERO);
         });
 
     }
 
+    @Test
+    void deposit_integerAmount() {
+        UserEntity user = new UserEntity("John", "Doe");
+
+        user.deposit(new BigDecimal("50"));
+
+        assertEquals(new BigDecimal("50.00"), user.getBalance());
+    }
+
+    @Test
+    void deposit_extremeAmount() {
+        UserEntity user = new UserEntity("John", "Doe");
+
+        user.deposit(new BigDecimal("1000000000.00"));
+
+        assertEquals(new BigDecimal("1000000000.00"), user.getBalance());
+    }
+
+    @Test
+    void deposit_smallAmount() {
+        UserEntity user = new UserEntity("John", "Doe");
+
+        user.deposit(new BigDecimal("0.01"));
+
+        assertEquals(new BigDecimal("0.01"), user.getBalance());
+    }
+
+    @Test
+    void deposit_randomizedValues() {
+        UserEntity user = new UserEntity("John", "Doe");
+
+        for (int i = 0; i < 100; i++) {
+            BigDecimal value = BigDecimal.valueOf(Math.random() * 1000)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            user.deposit(value);
+        }
+
+        assertTrue(user.getBalance().compareTo(BigDecimal.ZERO) > 0);
+    }
      //edge cases for UserEntity class - rename
+
+
     @Test
     void rename_blankFirstName() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             user.rename("", "Smith");
         });
 
@@ -201,7 +246,7 @@ class UserEntityTest {
     void rename_blankLastName() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             user.rename("Jane", "");
         });
 
@@ -211,7 +256,7 @@ class UserEntityTest {
     void rename_SameName() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             user.rename("John", "Doe");
         });
 
@@ -221,7 +266,7 @@ class UserEntityTest {
     void rename_NullFirstName() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             user.rename(null, "Smith");
         });
 
@@ -230,7 +275,7 @@ class UserEntityTest {
     void rename_NullLastName() {
         UserEntity user = new UserEntity("John", "Doe");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidUserDataException.class, () -> {
             user.rename("Jane", null);
         });
 

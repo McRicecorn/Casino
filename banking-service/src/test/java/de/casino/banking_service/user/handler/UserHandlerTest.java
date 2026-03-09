@@ -1,5 +1,8 @@
 package de.casino.banking_service.user.handler;
 
+import de.casino.banking_service.user.exceptions.InvalidAmountException;
+import de.casino.banking_service.user.exceptions.InvalidUserDataException;
+import de.casino.banking_service.user.exceptions.UserNotFoundException;
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.UserRepository;
 
@@ -55,7 +58,7 @@ class UserHandlerTest {
     void createUser_shouldThrowException_whenFirstNameIsInvalid() {
 
         // WHEN + THEN
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(InvalidUserDataException.class, () ->
                 userHandler.createUser("", "Mustermann")
         );
 
@@ -97,7 +100,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.empty());
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () -> userHandler.getUserById(1L));
+        assertThrows(UserNotFoundException.class, () -> userHandler.getUserById(1L));
         verify(userRepository).findById(1L);
     }
 
@@ -158,7 +161,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.of(user));
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(InvalidAmountException.class, () ->
                 userHandler.deposit(1L, new BigDecimal("-50.00"))
         );
         verify(userRepository,never()).save(any());
@@ -171,7 +174,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.empty());
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(UserNotFoundException.class, () ->
                 userHandler.deposit(1L, new BigDecimal("50.00"))
         );
         verify(userRepository,never()).save(any());
@@ -219,7 +222,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.of(user));
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(InvalidAmountException.class, () ->
                 userHandler.withdraw(1L, new BigDecimal("-20.00"))
         );
 
@@ -235,7 +238,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.of(user));
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(InvalidAmountException.class, () ->
                 userHandler.withdraw(1L, new BigDecimal("60.00"))
         );
         verify(userRepository,never()).save(any());
@@ -248,7 +251,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.empty());
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(UserNotFoundException.class, () ->
                 userHandler.withdraw(1L, new BigDecimal("20.00"))
         );
         verify(userRepository,never()).save(any());
@@ -297,7 +300,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.of(user));
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(InvalidUserDataException.class, () ->
                 userHandler.rename(1L, "", "Musterfrau")
         );
         verify(userRepository,never()).save(any());
@@ -310,7 +313,7 @@ class UserHandlerTest {
                 .thenReturn(Optional.empty());
 
         // When + Then
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(UserNotFoundException.class, () ->
                 userHandler.rename(1L, "Erika", "Musterfrau")
         );
         verify(userRepository,never()).save(any());

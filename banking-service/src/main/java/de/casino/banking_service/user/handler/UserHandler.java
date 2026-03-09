@@ -4,6 +4,7 @@ import de.casino.banking_service.user.exceptions.UserNotFoundException;
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -37,12 +38,14 @@ public class UserHandler {
         return userRepository.findAll();
     }
 
+    @Transactional
     public UserEntity deposit(Long id, BigDecimal amount) {
         UserEntity user = getUserById(id);
         user.deposit(amount);
         return userRepository.save(user);
     }
 
+    @Transactional
     public UserEntity withdraw(Long id, BigDecimal amount) {
         UserEntity user = getUserById(id);
         user.withdraw(amount);

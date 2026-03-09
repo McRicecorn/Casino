@@ -75,8 +75,9 @@ public class UserController {
             @PathVariable String decimals) {
 
 
-            BigDecimal value = new BigDecimal(amount + "." + decimals);
-            UserEntity updatedUser = userHandler.deposit(id, value);
+        BigDecimal value = parseAmount(amount, decimals);
+
+        UserEntity updatedUser = userHandler.deposit(id, value);
             return ResponseEntity.ok(UserMapper.toResponse(updatedUser)); // 200 OK
 
 
@@ -87,9 +88,14 @@ public class UserController {
             @PathVariable String amount,
             @PathVariable String decimals) {
 
-        BigDecimal value = new BigDecimal(amount + "." + decimals);
+        BigDecimal value = parseAmount(amount, decimals);
+
         UserEntity updatedUser = userHandler.withdraw(id, value);
 
         return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
+    }
+
+    private BigDecimal parseAmount(String amount, String decimals) {
+        return new BigDecimal(amount + "." + decimals);
     }
 }
