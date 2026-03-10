@@ -68,12 +68,28 @@ public class SlotmachineController {
 
     @GetMapping(value = "/info/rules", produces = "text/plain;charset=UTF-8")
     public ResponseEntity<String> readRules() {
-        return ResponseEntity.ok(handler.getRules());
+        var result = handler.getRules();
+
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result.getSuccessData().get());
+        }else{
+            return ResponseEntity.status(
+                    result.getFailureData().get().getHttpStatus())
+                    .body(result.getFailureData().get().getMessage());
+        }
     }
 
     @GetMapping(value = "/info/chances", produces = "text/plain;charset=UTF-8")
     public ResponseEntity<String> readChances() {
-        return ResponseEntity.ok(handler.calculateChances());
+        var result = handler.calculateChances();
+
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result.getSuccessData().get());
+        }else{
+            return ResponseEntity.status(
+                    result.getFailureData().get().getHttpStatus())
+                    .body(result.getFailureData().get().getMessage());
+        }
     }
 
     @GetMapping("/stats")

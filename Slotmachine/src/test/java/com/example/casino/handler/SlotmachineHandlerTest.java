@@ -1,8 +1,11 @@
 package com.example.casino.handler;
 
+import com.example.casino.dto.stats.IGlobalStatsResponse;
+import com.example.casino.dto.stats.IUserStatsResponse;
 import com.example.casino.dto.transaction.BankingTransactionRequest;
 import com.example.casino.dto.user.BankingUserResponse;
 import com.example.casino.factory.ISlotmachineGameFactory;
+import com.example.casino.model.ISlotmachineGameEntity;
 import com.example.casino.model.SlotmachineGameEntity;
 import com.example.casino.repository.ISlotmachineRepository;
 import com.example.casino.request.ISlotmachineRequest;
@@ -20,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Optional;
 
 import java.math.BigDecimal;
@@ -73,7 +77,7 @@ class SlotmachineHandlerTest {
 
     @Test
     void play_Failure_InsufficientBalance(){
-        //instanciate request with betAmouont bigger than bank balance
+        //instantiate request with betAmouont bigger than bank balance
         //betAmount is 10
         ISlotmachineRequest request = new SlotmachineRequest(1L, BigDecimal.TEN);
 
@@ -322,11 +326,54 @@ class SlotmachineHandlerTest {
         assertEquals(ErrorWrapper.GAME_NOT_FOUND, result.getFailureData().get());
         verify(repository).findById(99L);
         verifyNoInteractions(responseFactory);
-
     }
 
     @Test
-    void readGame() {
+    void readAllGames_Success(){
+
+        SlotmachineGameEntity game1 = mock(SlotmachineGameEntity.class);
+        SlotmachineGameEntity game2 = mock(SlotmachineGameEntity.class);
+
+        //create list of game entities for repository
+        List<SlotmachineGameEntity> gameEntities = List.of(game1, game2);
+
+        //mock repository
+        when(repository.findAll()).thenReturn(gameEntities);
+
+        //mock responses (readAllGames() iterates over gameEntities and creates SlotmachineResponse for each)
+        ISlotmachineResponse response1 = mock(ISlotmachineResponse.class);
+        ISlotmachineResponse response2 = mock(ISlotmachineResponse.class);
+        when(responseFactory.createSlotmachineResponse(game1)).thenReturn(response1);
+        when(responseFactory.createSlotmachineResponse(game2)).thenReturn(response2);
+
+        //test
+        var result = handler.readAllGames();
+
+        //assertions
+        assertTrue(result.isSuccess());
+        assertEquals(List.of(response1, response2), result.getSuccessData().get());
+
+        verify(repository).findAll();
+        verify(responseFactory).createSlotmachineResponse(game1);
+        verify(responseFactory).createSlotmachineResponse(game2);
+    }
+
+    @Test
+    void readGame_Success() {
+        //mock game entity and response
+        SlotmachineGameEntity gameEntity = mock(SlotmachineGameEntity.class);
+        ISlotmachineResponse response = mock(ISlotmachineResponse.class);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(gameEntity));
+        when(responseFactory.createSlotmachineResponse(gameEntity)).thenReturn(response);
+
+        var result = handler.readGame(1L);
+
+        assertTrue(result.isSuccess());
+        assertEquals(response, result.getSuccessData().get());
+
+        verify(repository).findById(1L);
+        verify(responseFactory).createSlotmachineResponse(gameEntity);
     }
 
     @Test
@@ -335,10 +382,38 @@ class SlotmachineHandlerTest {
 
     @Test
     void getRules() {
+        var result = handler.getRules();
+
+        assertTrue(result.isSuccess());
+        // Hier prüfst du auf den Text, den dein Handler tatsächlich zurückgibt
+        String rules = result.getSuccessData().get();
+        assertNotNull(rules);
+        assertTrue(rules.contains("Jackpot") || rules.contains("Win"));
     }
 
     @Test
-    void readUserStats() {
+    void readUserStats_Success() {
+        long userId = 1L;
+
+        //mock game entity and create List because findbyUserId returns List
+        ISlotmachineGameEntity game1 = mock(ISlotmachineGameEntity.class);
+        List<ISlotmachineGameEntity> mockGames = List.of(game1);
+        //mock UserStatsResponse
+        IUserStatsResponse mockStatsResponse = mock(IUserStatsResponse.class);
+
+        when(repository.findByUserId(userId)).thenReturn(mockGames);
+        when(responseFactory.createUserStatsResponse(mockGames)).thenReturn(mockStatsResponse);
+
+        //test
+        var result = handler.readUserStats(userId);
+
+        //assertions
+        assertTrue(result.isSuccess());
+        assertEquals(mockStatsResponse, result.getSuccessData().get());
+
+        verify(repository).findByUserId(userId);
+        verify(responseFactory).createUserStatsResponse(mockGames);
+
     }
 
     @Test

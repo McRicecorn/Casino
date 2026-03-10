@@ -189,7 +189,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     }
 
     @Override
-    public String calculateChances(){
+    public Result<String, ErrorWrapper> calculateChances(){
         //number of symbols
         int n = SlotSymbols.values().length;
 
@@ -202,23 +202,26 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         //calculate RTP (Return to Player) -> zu Deutsch: Auszahlungsquote
         double rtp = (bigWinChance * 10) + (smallWinChance * 2);
 
-        return String.format(
+        String message = String.format(
                 "With %d symbols, your chances are as follows:\n" +
                         "- Jackpot (3 matching): %.2f%%\n" +
                         "- Small Win (exactly 2 matching): %.2f%%\n" +
                         "- RTP (Theoretical Return to Player): %.2f%%",
                 n, bigWinChance * 100, smallWinChance * 100, rtp * 100
         );
+
+        return Result.success(message);
     }
 
     @Override
-    public String getRules(){
-        return "Slot Machine Rules:\n" +
+    public Result<String, ErrorWrapper> getRules(){
+        String rules = "Slot Machine Rules:\n" +
                 "First, select your bet amount and start the game.\n" +
                 "Three matching symbols win the Jackpot of 10 x the bet amount!\n" +
                 "Two matching symbols win a prize of 2 x the bet amount!\n" +
                 "No matching symbols loose the bet amount.\n" +
                 "The net result will be automatically updated in your banking account.";
+        return Result.success(rules);
     }
 
     @Override
