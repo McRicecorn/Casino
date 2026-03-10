@@ -3,6 +3,7 @@ package com.example.casino.model;
 import com.example.casino.utility.ErrorResult;
 import com.example.casino.utility.ErrorWrapper;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public interface ISlotmachineGameEntity {
@@ -11,9 +12,9 @@ public interface ISlotmachineGameEntity {
 
     long getUserId();
 
-    double getBetAmount();
+    BigDecimal getBetAmount();
 
-    double getWinAmount();
+    BigDecimal getWinAmount();
 
     boolean isWinning();
 
@@ -21,5 +22,5 @@ public interface ISlotmachineGameEntity {
 
     LocalDateTime getTimestamp();
 
-    ErrorResult<ErrorWrapper> setBetAmount(double betAmount);
+    ErrorResult<ErrorWrapper> setBetAmount(BigDecimal betAmount);
 }

@@ -1,9 +1,11 @@
 package com.example.casino.dto.transaction;
 
+import java.math.BigDecimal;
+
 public interface IBankingTransactionRequest {
 
     String getInvoicingParty();
     void setInvoicingParty(String invoicingParty);
-    double getAmount();
-    void setAmount(double amount);
+    BigDecimal getAmount();
+    void setAmount(BigDecimal amount);
 }

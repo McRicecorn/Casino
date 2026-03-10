@@ -2,6 +2,8 @@ package com.example.casino.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.math.BigDecimal;
+
 public class BankingUserResponse implements IBankingUserResponse {
     @JsonProperty("id")
     private long userId;
@@ -13,9 +15,9 @@ public class BankingUserResponse implements IBankingUserResponse {
     private String lastName;
 
     @JsonProperty("balance")
-    private double balance;
+    private BigDecimal balance;
 
-    public BankingUserResponse(long userId, String firstName, String lastName, double balance) {
+    public BankingUserResponse(long userId, String firstName, String lastName, BigDecimal balance) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -37,7 +39,7 @@ public class BankingUserResponse implements IBankingUserResponse {
     }
 
     @Override
-    public double getBalance(){
+    public BigDecimal getBalance(){
         return balance;
     }
 }

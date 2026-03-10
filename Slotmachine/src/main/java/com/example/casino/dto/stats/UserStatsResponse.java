@@ -3,6 +3,8 @@ package com.example.casino.dto.stats;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
 @Schema(description = "Response to view stats for specific user/client")
 public class UserStatsResponse implements IUserStatsResponse {
     @JsonProperty("client")
@@ -18,17 +20,17 @@ public class UserStatsResponse implements IUserStatsResponse {
     private int totalLosses;
 
     @JsonProperty("total_client_profit")
-    private double totalClientProfit;
+    private BigDecimal totalClientProfit;
 
     @JsonProperty("total_house_turnover_from_client")
-    private double totalHouseTurnoverFromClient;
+    private BigDecimal totalHouseTurnoverFromClient;
 
     @JsonProperty("total_house_profit_from_client")
-    private double totalHouseProfitFromClient;
+    private BigDecimal totalHouseProfitFromClient;
 
     public UserStatsResponse() {}
 
-    public UserStatsResponse(long client, int totalGamesCount, int totalWinnings, int totalLosses, double totalClientProfit, double totalHouseTurnoverFromClient, double totalHouseProfitFromClient) {
+    public UserStatsResponse(long client, int totalGamesCount, int totalWinnings, int totalLosses, BigDecimal totalClientProfit, BigDecimal totalHouseTurnoverFromClient, BigDecimal totalHouseProfitFromClient) {
         this.client = client;
         this.totalGamesCount = totalGamesCount;
         this.totalWinnings = totalWinnings;
@@ -55,15 +57,15 @@ public class UserStatsResponse implements IUserStatsResponse {
         return totalLosses;
     }
     @Override
-    public double getTotalClientProfit() {
+    public BigDecimal getTotalClientProfit() {
         return totalClientProfit;
     }
     @Override
-    public double getTotalTurnoverFromClient(){
+    public BigDecimal getTotalTurnoverFromClient(){
         return totalHouseTurnoverFromClient;
     }
     @Override
-    public double getTotalProfitFromClient(){
+    public BigDecimal getTotalProfitFromClient(){
         return totalHouseProfitFromClient;
     }
 }

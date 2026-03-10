@@ -11,6 +11,7 @@ import com.example.casino.utility.ErrorWrapper;
 import com.example.casino.utility.Result;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static com.example.casino.utility.ErrorWrapper.UNEXPECTED_INTERNAL_ERROR;
@@ -23,7 +24,7 @@ public class SlotmachineResponseFactory implements ISlotmachineResponseFactory {
 
         String message;
         if (gameEntity.isWinning()) {
-            if (gameEntity.getWinAmount() >= gameEntity.getBetAmount() * 10) {
+            if (gameEntity.getWinAmount().compareTo(gameEntity.getBetAmount().multiply(BigDecimal.TEN)) >= 0) {
                 message = "FANTASTIC! That was an epic WIN! Congrats \uD83E\uDD73";
             } else {
                 message = "You WON! Your bank balance will thank you.";
@@ -35,7 +36,7 @@ public class SlotmachineResponseFactory implements ISlotmachineResponseFactory {
         return new SlotmachineResponse(
                 gameEntity.getId(),
                 gameEntity.getUserId(),
-                gameEntity.getWinAmount() - gameEntity.getBetAmount(),
+                gameEntity.getWinAmount().subtract(gameEntity.getBetAmount()),
                 gameEntity.isWinning(),
                 gameEntity.getSlotResult(),
                 message);
@@ -56,12 +57,17 @@ public class SlotmachineResponseFactory implements ISlotmachineResponseFactory {
                 .filter(g -> !g.isWinning())
                 .count();
 
-        double totalTurnover = userGames.stream().mapToDouble(ISlotmachineGameEntity::getBetAmount).sum();
+        BigDecimal totalTurnover = userGames.stream()
+                .map(ISlotmachineGameEntity::getBetAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        double winningsSum = userGames.stream().mapToDouble(ISlotmachineGameEntity::getWinAmount).sum();
-        double totalClientProfit = winningsSum - totalTurnover;
+        BigDecimal winningsSum = userGames.stream()
+                .map(ISlotmachineGameEntity::getWinAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        double totalHouseProfit = totalTurnover - winningsSum;
+        BigDecimal totalClientProfit = winningsSum.subtract(totalTurnover);
+
+        BigDecimal totalHouseProfit = totalTurnover.subtract(winningsSum);
 
 
         return new UserStatsResponse(userId, totalGamesCount, totalWinnings, totalLosses, totalClientProfit, totalTurnover, totalHouseProfit);
@@ -73,11 +79,15 @@ public class SlotmachineResponseFactory implements ISlotmachineResponseFactory {
 
         long totalGameCount = allGames.size();
 
-        double totalTurnover = allGames.stream().mapToDouble(g -> g.getBetAmount()).sum();
+        BigDecimal totalTurnover = allGames.stream()
+                .map(ISlotmachineGameEntity::getBetAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        double totalCashOut = allGames.stream().mapToDouble(g -> g.getWinAmount()).sum();
+        BigDecimal totalCashOut = allGames.stream()
+                .map(ISlotmachineGameEntity::getWinAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        double totalProfit = totalTurnover - totalCashOut;
+        BigDecimal totalProfit = totalTurnover.subtract(totalCashOut);
 
         return new GlobalStatsResponse(totalClientCount, totalGameCount, totalProfit, totalCashOut, totalTurnover);
     }

@@ -102,5 +102,6 @@ public class SlotmachineController {
 
     //TODO Geldbeträge auf BigDecimal umstellen!!!
     //TODO Tests schreiben !!!
+    //TODO Fehlermeldungen nach Test run checken 
 
 }

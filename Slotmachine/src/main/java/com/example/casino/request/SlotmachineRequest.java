@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
 @Schema(description = "Request to play a Slotmachine Game")
 public class SlotmachineRequest implements ISlotmachineRequest{
 
@@ -11,11 +13,11 @@ public class SlotmachineRequest implements ISlotmachineRequest{
     private final long user;
 
     @Schema(description = "the invested money", example = "100")
-    private final double betAmount;
+    private final BigDecimal betAmount;
 
     @JsonCreator
     public SlotmachineRequest(@JsonProperty("user") long user,
-                              @JsonProperty("betAmount") double betAmount){
+                              @JsonProperty("betAmount") BigDecimal betAmount){
         this.user = user;
         this.betAmount = betAmount;
     }
@@ -26,7 +28,7 @@ public class SlotmachineRequest implements ISlotmachineRequest{
     }
 
     @Override
-    public double getBetAmount() {
+    public BigDecimal getBetAmount() {
         return betAmount;
     }
 }

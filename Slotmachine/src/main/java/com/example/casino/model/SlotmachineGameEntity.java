@@ -5,6 +5,7 @@ import com.example.casino.utility.ErrorWrapper;
 import com.example.casino.utility.Result;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,10 +21,10 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
     private long userId;
 
     @Column(name = "betAmount")
-    private double betAmount;
+    private BigDecimal betAmount;
 
     @Column(name = "winAmount")
-    private double winAmount;
+    private BigDecimal winAmount;
 
     @Column(name = "isWinning")
     private boolean isWinning;
@@ -36,7 +37,7 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
 
     private SlotmachineGameEntity() {}
 
-    private SlotmachineGameEntity(long userId, double betAmount, double winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
+    private SlotmachineGameEntity(long userId, BigDecimal betAmount, BigDecimal winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
         this.userId = userId;
         this.betAmount = betAmount;
         this.winAmount = winAmount;
@@ -45,7 +46,7 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
         this.timestamp = timestamp;
     }
 
-    public static Result<ISlotmachineGameEntity, ErrorWrapper> create(long userId, double betAmount, double winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
+    public static Result<ISlotmachineGameEntity, ErrorWrapper> create(long userId, BigDecimal betAmount, BigDecimal winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
         var requested = new SlotmachineGameEntity(userId, betAmount, winAmount, isWinning, slotResult, timestamp);
 
         var isBetAmountValid = requested.isBetAmountValid();
@@ -58,7 +59,7 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
 
     private ErrorResult<ErrorWrapper> isBetAmountValid() {
         //ist der Einsatz negativ? -> Fehler
-        if (betAmount <= 0) {
+        if (betAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return ErrorResult.failure(ErrorWrapper.INVALID_BET_AMOUNT);
         }
         return ErrorResult.success();
@@ -76,12 +77,12 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
     }
 
     @Override
-    public double getBetAmount() {
+    public BigDecimal getBetAmount() {
         return betAmount;
     }
 
     @Override
-    public double getWinAmount() {
+    public BigDecimal getWinAmount() {
         return winAmount;
     }
 
@@ -101,8 +102,8 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
     }
 
     @Override
-    public ErrorResult<ErrorWrapper> setBetAmount(double betAmount){
-        if (betAmount <= 0) {
+    public ErrorResult<ErrorWrapper> setBetAmount(BigDecimal betAmount){
+        if (betAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return ErrorResult.failure(ErrorWrapper.INVALID_BET_AMOUNT);
         }
         this.betAmount = betAmount;

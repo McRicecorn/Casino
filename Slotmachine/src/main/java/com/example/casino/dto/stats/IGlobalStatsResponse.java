@@ -1,10 +1,12 @@
 package com.example.casino.dto.stats;
 
+import java.math.BigDecimal;
+
 public interface IGlobalStatsResponse {
     long getTotalClientCount();
     long getTotalGamesCount();
-    double getTotalProfit();
-    double getTotalCashOut();
-    double getTotalTurnover();
+    BigDecimal getTotalProfit();
+    BigDecimal getTotalCashOut();
+    BigDecimal getTotalTurnover();
 
 }

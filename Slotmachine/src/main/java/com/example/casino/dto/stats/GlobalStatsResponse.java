@@ -3,6 +3,8 @@ package com.example.casino.dto.stats;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
 @Schema(description = "Response to view Stats for all games played")
 public class GlobalStatsResponse implements IGlobalStatsResponse {
     @JsonProperty("total_client_count")
@@ -12,17 +14,17 @@ public class GlobalStatsResponse implements IGlobalStatsResponse {
     private long totalGamesCount;
 
     @JsonProperty("total_profit")
-    private double totalProfit;
+    private BigDecimal totalProfit;
 
     @JsonProperty("total_cash_out")
-    private double totalCashOut;
+    private BigDecimal totalCashOut;
 
     @JsonProperty("total_turnover")
-    private double totalTurnover;
+    private BigDecimal totalTurnover;
 
     public GlobalStatsResponse() {}
 
-    public GlobalStatsResponse(long totalClientCount, long totalGamesCount, double totalProfit, double totalCashOut, double totalTurnover ) {
+    public GlobalStatsResponse(long totalClientCount, long totalGamesCount, BigDecimal totalProfit, BigDecimal totalCashOut, BigDecimal totalTurnover ) {
         this.totalClientCount = totalClientCount;
         this.totalGamesCount = totalGamesCount;
         this.totalProfit = totalProfit;
@@ -38,15 +40,15 @@ public class GlobalStatsResponse implements IGlobalStatsResponse {
         return totalGamesCount;
     }
     @Override
-    public double getTotalProfit(){
+    public BigDecimal getTotalProfit(){
         return totalProfit;
     }
     @Override
-    public double getTotalCashOut(){
+    public BigDecimal getTotalCashOut(){
         return totalCashOut;
     }
     @Override
-    public double getTotalTurnover(){
+    public BigDecimal getTotalTurnover(){
         return totalTurnover;
     }
 }

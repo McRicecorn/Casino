@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
 import java.util.Random;
 
 import java.util.ArrayList;
@@ -53,10 +55,10 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     @Override
     public Result<ISlotmachineResponse, ErrorWrapper> play(ISlotmachineRequest request) {
 
-        double betAmount = request.getBetAmount();
+        BigDecimal betAmount = request.getBetAmount();
 
         //check, if bet amount is less than 0
-        if (betAmount <= 0) {
+        if (betAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return Result.failure(ErrorWrapper.INVALID_BET_AMOUNT);
         }
 
@@ -81,7 +83,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         }
 
         //check balance
-        if (user.getBalance() < betAmount){
+        if (user.getBalance().compareTo(betAmount) < 0){
             return Result.failure(ErrorWrapper.INSUFFICIENT_BALANCE);
         }
 
@@ -98,17 +100,17 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         boolean isWinningBig = reelResult.get(0) == reelResult.get(1) && reelResult.get(1) == reelResult.get(2);
         boolean isWinningSmall = reelResult.get(0) == reelResult.get(1) || reelResult.get(1) == reelResult.get(2) || reelResult.get(0) == reelResult.get(2);
 
-        double winAmount = 0;
+        BigDecimal winAmount;
         //calculate win amount
         if (isWinningBig){
-            winAmount = request.getBetAmount() * 10;
+            winAmount = request.getBetAmount().multiply(BigDecimal.TEN);
         }else if (isWinningSmall){
-            winAmount = request.getBetAmount() * 2;
+            winAmount = request.getBetAmount().multiply(BigDecimal.valueOf(2));
         }else{
-            winAmount = 0;
+            winAmount = BigDecimal.ZERO;
         }
 
-        boolean isWinning = winAmount > 0;
+        boolean isWinning = winAmount.compareTo(BigDecimal.ZERO) > 0;
 
 
         //convert symbols to strings
@@ -117,7 +119,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
                 .collect(Collectors.joining(","));
 
         //win amount minus bet amount for banking Service/balance
-        double netAmount = winAmount - betAmount;
+        BigDecimal netAmount = winAmount.subtract(betAmount);
 
 
         //create request for banking service

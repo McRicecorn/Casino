@@ -3,6 +3,7 @@ package com.example.casino.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class SlotmachineResponse implements ISlotmachineResponse{
     private long user;
 
     @Schema(description = "Amount/Money earned/lost", example = "6")
-    private double amount;
+    private BigDecimal amount;
 
     @Schema(description = "Boolean, whether player is winning or not", example = "true")
     private boolean winning;
@@ -29,7 +30,7 @@ public class SlotmachineResponse implements ISlotmachineResponse{
     private String message;
 
 
-    public SlotmachineResponse(long gameId, long user, double amount, boolean winning, String slotStates, String message) {
+    public SlotmachineResponse(long gameId, long user, BigDecimal amount, boolean winning, String slotStates, String message) {
         this.gameId = gameId;
         this.user = user;
         this.amount = amount;
@@ -48,7 +49,7 @@ public class SlotmachineResponse implements ISlotmachineResponse{
         return gameId;
     }
     @Override
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 

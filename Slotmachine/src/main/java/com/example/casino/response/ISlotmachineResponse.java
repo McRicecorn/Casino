@@ -1,5 +1,6 @@
 package com.example.casino.response;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ISlotmachineResponse {
@@ -8,7 +9,7 @@ public interface ISlotmachineResponse {
 
     long getGameId();
 
-    double getAmount();
+    BigDecimal getAmount();
 
     boolean isWinning();
 
