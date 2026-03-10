@@ -33,7 +33,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     private final ISlotmachineRepository repository;
     private final ISlotmachineGameFactory modelFactory;
     private final ISlotmachineResponseFactory responseFactory;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
 
     @Value("${casino.banking.url}") // in application.properties
@@ -42,14 +42,17 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     @Value("${spring.application.name}")
     private String serviceName;
 
-    private static final Random RANDOM = new Random();
+    //for random slot symbol access
+    private final Random RANDOM;
 
 
     @Autowired
-    public SlotmachineHandler(ISlotmachineRepository repository, ISlotmachineGameFactory modelFactory, ISlotmachineResponseFactory responseFactory) {
+    public SlotmachineHandler(ISlotmachineRepository repository, ISlotmachineGameFactory modelFactory, ISlotmachineResponseFactory responseFactory, RestTemplate restTemplate, Random random) {
         this.repository = repository;
         this.modelFactory = modelFactory;
         this.responseFactory = responseFactory;
+        this.restTemplate = restTemplate;
+        this.RANDOM = random;
     }
 
     @Override
