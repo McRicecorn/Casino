@@ -14,6 +14,7 @@ import com.example.casino.response.ISlotmachineResponse;
 import com.example.casino.responseFactory.ISlotmachineResponseFactory;
 import com.example.casino.utility.ErrorWrapper;
 import com.example.casino.utility.Result;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class SlotmachineHandlerTest {
@@ -54,8 +56,10 @@ class SlotmachineHandlerTest {
     @InjectMocks
     private SlotmachineHandler handler;
 
-    private long getRandomId() {
-        return ThreadLocalRandom.current().nextLong(1, 100000);
+    @BeforeEach
+    void setup() {
+        ReflectionTestUtils.setField(handler, "bankingUrl", "http://localhost:8080/casino/bank/api/");
+        ReflectionTestUtils.setField(handler, "serviceName", "Slotmachine-Service");
     }
 
     @Test
@@ -85,7 +89,7 @@ class SlotmachineHandlerTest {
         BankingUserResponse user = new BankingUserResponse(1L, "otto", "müller", BigDecimal.valueOf(5));
 
         //restTemplate should return 'user' because we have no real communication with banking service
-        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+        when(restTemplate.getForObject(contains("localhost:8080"), eq(BankingUserResponse.class)))
                 .thenReturn(user);
 
         var result = handler.play(request);
@@ -99,16 +103,13 @@ class SlotmachineHandlerTest {
 
     @Test
     void play_Success_NoWin(){
-        ReflectionTestUtils.setField(handler, "bankingUrl", "http://localhost:8080/casino/bank/api/");
-        ReflectionTestUtils.setField(handler, "serviceName", "Slotmachine-Service");
-
         ISlotmachineRequest request = new SlotmachineRequest(1L, BigDecimal.TEN);
 
         //user Response as a mock instead of real object
         BankingUserResponse user = mock(BankingUserResponse.class);
         when(user.getBalance()).thenReturn(BigDecimal.valueOf(100));
 
-        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+        when(restTemplate.getForObject(contains("localhost:8080"), eq(BankingUserResponse.class)))
                 .thenReturn(user);
 
         //three different symbols == no win
@@ -129,7 +130,7 @@ class SlotmachineHandlerTest {
         when(responseFactory.createSlotmachineResponse(entity)).thenReturn(response);
 
         //simulate http response
-        when(restTemplate.postForObject(anyString(), any(), eq(Object.class)))
+        when(restTemplate.postForObject(contains("localhost:8080"), any(), eq(Object.class)))
                 .thenReturn(new Object());
 
         //test
@@ -149,9 +150,6 @@ class SlotmachineHandlerTest {
 
     @Test
     void play_Success_Jackpot(){
-        ReflectionTestUtils.setField(handler, "bankingUrl", "http://localhost:8080/casino/bank/api/");
-        ReflectionTestUtils.setField(handler, "serviceName", "Slotmachine-Service");
-
         //bet amount = 50, userId = 1
         BigDecimal betAmount= BigDecimal.valueOf(50);
         ISlotmachineRequest request = new SlotmachineRequest(1L, betAmount);
@@ -160,7 +158,7 @@ class SlotmachineHandlerTest {
         BankingUserResponse user = mock(BankingUserResponse.class);
         when(user.getBalance()).thenReturn(BigDecimal.valueOf(100));
 
-        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+        when(restTemplate.getForObject(contains("localhost:8080"), eq(BankingUserResponse.class)))
                 .thenReturn(user);
 
         //three same symbols == Jackpot == 10 * betAmount (10 * 50 = 500)
@@ -203,9 +201,6 @@ class SlotmachineHandlerTest {
 
     @Test
     void play_Success_SmallWin(){
-        ReflectionTestUtils.setField(handler, "bankingUrl", "http://localhost:8080/casino/bank/api/");
-        ReflectionTestUtils.setField(handler, "serviceName", "Slotmachine-Service");
-
         //bet amount = 50, userId = 1
         BigDecimal betAmount= BigDecimal.valueOf(50);
         ISlotmachineRequest request = new SlotmachineRequest(1L, betAmount);
@@ -214,7 +209,7 @@ class SlotmachineHandlerTest {
         BankingUserResponse user = mock(BankingUserResponse.class);
         when(user.getBalance()).thenReturn(BigDecimal.valueOf(100));
 
-        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+        when(restTemplate.getForObject(contains("localhost:8080"), eq(BankingUserResponse.class)))
                 .thenReturn(user);
 
         //two same symbols == smallWin == 2 * betAmount (2 * 50 = 100)
@@ -237,7 +232,7 @@ class SlotmachineHandlerTest {
         when(responseFactory.createSlotmachineResponse(entity)).thenReturn(response);
 
         //simulate http response
-        when(restTemplate.postForObject(anyString(), any(), eq(Object.class)))
+        when(restTemplate.postForObject(contains("localhost:8080"), any(), eq(Object.class)))
                 .thenReturn(new Object());
 
         //test
@@ -257,9 +252,7 @@ class SlotmachineHandlerTest {
 
     @Test
     void play_netAmountSuccessfullyTransmitted(){
-        ReflectionTestUtils.setField(handler, "bankingUrl", "http://localhost:8080/casino/bank/api/");
-        ReflectionTestUtils.setField(handler, "serviceName", "Slotmachine-Service");
-
+        //setup
         //bet amount = 50, userId = 1
         BigDecimal betAmount= BigDecimal.valueOf(50);
         ISlotmachineRequest request = new SlotmachineRequest(1L, betAmount);
@@ -291,10 +284,10 @@ class SlotmachineHandlerTest {
         when(responseFactory.createSlotmachineResponse(entity)).thenReturn(response);
 
         //simulate http response
-        when(restTemplate.postForObject(anyString(), any(), eq(Object.class)))
+        when(restTemplate.postForObject(contains("localhost:8080"), any(), eq(Object.class)))
                 .thenReturn(new Object());
 
-        //test
+        //Test
         var result = handler.play(request);
 
         //capture response to banking service (netAmount)
@@ -317,11 +310,14 @@ class SlotmachineHandlerTest {
 
     @Test
     void readAllGames_Failure() {
+        //setup
         Optional<SlotmachineGameEntity> emptyResult = Optional.empty();
         when(repository.findById(99L)).thenReturn(emptyResult);
 
+        //test
         var result = handler.readGame(99L);
 
+        //assert
         assertTrue(result.isFailure());
         assertEquals(ErrorWrapper.GAME_NOT_FOUND, result.getFailureData().get());
         verify(repository).findById(99L);
@@ -330,7 +326,7 @@ class SlotmachineHandlerTest {
 
     @Test
     void readAllGames_Success(){
-
+        //setup
         SlotmachineGameEntity game1 = mock(SlotmachineGameEntity.class);
         SlotmachineGameEntity game2 = mock(SlotmachineGameEntity.class);
 
@@ -359,6 +355,22 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    void readGame_Failure(){
+        //setup
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        //test
+        var result = handler.readGame(1L);
+
+        //assertions
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.GAME_NOT_FOUND, result.getFailureData().get());
+
+        verify(repository).findById(1L);
+        verifyNoInteractions(responseFactory);
+    }
+
+    @Test
     void readGame_Success() {
         //mock game entity and response
         SlotmachineGameEntity gameEntity = mock(SlotmachineGameEntity.class);
@@ -367,8 +379,10 @@ class SlotmachineHandlerTest {
         when(repository.findById(1L)).thenReturn(Optional.of(gameEntity));
         when(responseFactory.createSlotmachineResponse(gameEntity)).thenReturn(response);
 
+        //test
         var result = handler.readGame(1L);
 
+        //assert
         assertTrue(result.isSuccess());
         assertEquals(response, result.getSuccessData().get());
 
@@ -378,17 +392,47 @@ class SlotmachineHandlerTest {
 
     @Test
     void calculateChances() {
+        //Test
+        var result = handler.calculateChances();
+
+        //assertions
+        assertTrue(result.isSuccess());
+
+        String rules = result.getSuccessData().get();
+
+        assertNotNull(rules);
+        assertTrue(rules.contains("as follows") && rules.contains("Small Win") && rules.contains("RTP"));
     }
 
     @Test
     void getRules() {
+        //Test
         var result = handler.getRules();
 
+        //assertions
         assertTrue(result.isSuccess());
-        // Hier prüfst du auf den Text, den dein Handler tatsächlich zurückgibt
         String rules = result.getSuccessData().get();
+
         assertNotNull(rules);
-        assertTrue(rules.contains("Jackpot") || rules.contains("Win"));
+        assertTrue(rules.contains("Jackpot") && rules.contains("matching symbols"));
+    }
+
+    @Test
+    void readUserStats_Failure(){
+        //setup
+        long userId = 1L;
+        //returns empty list
+        when(repository.findByUserId(userId)).thenReturn(List.of());
+
+        //test
+        var result = handler.readUserStats(userId);
+
+        //assert
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.NO_GAMES_FOUND, result.getFailureData().get());
+
+        verify(repository).findByUserId(userId);
+        verifyNoInteractions(responseFactory);
     }
 
     @Test
@@ -416,7 +460,43 @@ class SlotmachineHandlerTest {
 
     }
 
+
+
     @Test
-    void readGlobalStats() {
+    void readGlobalStats_Failure() {
+        //setup
+        when(repository.findAll()).thenReturn(List.of());
+
+        //test
+        var result = handler.readGlobalStats();
+
+        //assert
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.NO_GAMES_FOUND, result.getFailureData().get());
+
+        verify(repository).findAll();
+        verifyNoInteractions(responseFactory);
+    }
+
+    @Test
+    void readGlobalStats_Success(){
+        //mock game entity and create List
+        SlotmachineGameEntity game1 = mock(SlotmachineGameEntity.class);
+        List<SlotmachineGameEntity> mockGames = List.of(game1);
+        //mock UserStatsResponse
+        IGlobalStatsResponse mockStatsResponse = mock(IGlobalStatsResponse.class);
+
+        when(repository.findAll()).thenReturn(mockGames);
+        when(responseFactory.createGlobalStatsResponse(mockGames)).thenReturn(mockStatsResponse);
+
+        //test
+        var result = handler.readGlobalStats();
+
+        //assertions
+        assertTrue(result.isSuccess());
+        assertEquals(mockStatsResponse, result.getSuccessData().get());
+
+        verify(repository).findAll();
+        verify(responseFactory).createGlobalStatsResponse(mockGames);
     }
 }
