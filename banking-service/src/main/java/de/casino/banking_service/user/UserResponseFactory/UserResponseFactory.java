@@ -6,6 +6,9 @@ import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.model.IUserEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class UserResponseFactory implements IUserResponseFactory{
         @Override
@@ -25,5 +28,7 @@ public class UserResponseFactory implements IUserResponseFactory{
                     user.getBalance()
             );
         }
+
+
 
 }

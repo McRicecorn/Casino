@@ -1,7 +1,10 @@
 package de.casino.banking_service.user.handler;
 
+import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.UserFactory.IUserFactory;
 import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
+import de.casino.banking_service.user.Utility.ErrorWrapper;
+import de.casino.banking_service.user.Utility.Result;
 import de.casino.banking_service.user.exceptions.UserNotFoundException;
 import de.casino.banking_service.user.model.IUserEntity;
 import de.casino.banking_service.user.model.UserEntity;
@@ -11,10 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserHandler {
+public class UserHandler implements IUserHandler {
 
     private  final IUserRepository userRepository;
     private  final IUserFactory userFactory;
@@ -40,7 +44,8 @@ public class UserHandler {
     }
 
     public UserEntity getUserById(Long id) {
-        var result
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     public List<UserEntity> getAllUsers() {
@@ -66,5 +71,25 @@ public class UserHandler {
         user.rename(first_name, last_name);
         return userRepository.save(user);
     }
+
+    /// ////////////////////////////
+    public Result<IUserResponse, ErrorWrapper> getUserByIdResponse(Long id) {
+        var result = userRepository.findById(id);
+        if (result.isPresent()) {
+            return Result.success(userResponseFactory.createGet(result.get()));
+        }
+        return Result.failure(ErrorWrapper.USER_NOT_FOUND);
+    }
+
+    public List<IUserResponse> getAllUsersResponse() {
+        List<UserEntity> users = userRepository.findAll();
+        List <IUserResponse> userResponses = new ArrayList<>();
+        for (UserEntity user : users) {
+            userResponses.add(userResponseFactory.createGet(user));
+        }
+        return userResponses    ;
+    }
+
+
 
 }
