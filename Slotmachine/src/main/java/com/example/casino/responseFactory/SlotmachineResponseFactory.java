@@ -7,14 +7,11 @@ import com.example.casino.dto.stats.UserStatsResponse;
 import com.example.casino.model.ISlotmachineGameEntity;
 import com.example.casino.response.ISlotmachineResponse;
 import com.example.casino.response.SlotmachineResponse;
-import com.example.casino.utility.ErrorWrapper;
-import com.example.casino.utility.Result;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.example.casino.utility.ErrorWrapper.UNEXPECTED_INTERNAL_ERROR;
 
 @Component
 public class SlotmachineResponseFactory implements ISlotmachineResponseFactory {

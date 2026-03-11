@@ -65,7 +65,7 @@ public class UserStatsResponse implements IUserStatsResponse {
         return totalHouseTurnoverFromClient;
     }
     @Override
-    public BigDecimal getTotalProfitFromClient(){
+    public BigDecimal getTotalHouseProfitFromClient(){
         return totalHouseProfitFromClient;
     }
 }

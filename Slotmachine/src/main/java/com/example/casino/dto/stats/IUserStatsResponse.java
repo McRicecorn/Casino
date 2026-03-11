@@ -9,5 +9,5 @@ public interface IUserStatsResponse {
     int getTotalLosses();
     BigDecimal getTotalClientProfit();
     BigDecimal getTotalTurnoverFromClient();
-    BigDecimal getTotalProfitFromClient();
+    BigDecimal getTotalHouseProfitFromClient();
 }
