@@ -4,7 +4,7 @@ import de.casino.banking_service.user.exceptions.InvalidAmountException;
 import de.casino.banking_service.user.exceptions.InvalidUserDataException;
 import de.casino.banking_service.user.exceptions.UserNotFoundException;
 import de.casino.banking_service.user.model.UserEntity;
-import de.casino.banking_service.user.repository.UserRepository;
+import de.casino.banking_service.user.repository.IUserRepository;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class UserHandlerTest {
 
     @Mock
-    private UserRepository userRepository;
+    private IUserRepository userRepository;
 
     @InjectMocks
     private UserHandler userHandler;

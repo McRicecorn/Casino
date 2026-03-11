@@ -1,8 +1,8 @@
 package de.casino.banking_service.user.mapper;
 
 import de.casino.banking_service.user.model.UserEntity;
-import de.casino.banking_service.user.view.DeleteUserResponse;
-import de.casino.banking_service.user.view.UserResponse;
+import de.casino.banking_service.user.Response.DeleteUserResponse;
+import de.casino.banking_service.user.Response.GetUserResponse;
 
 import java.util.List;
 
@@ -11,15 +11,15 @@ public class UserMapper {
     private UserMapper() {
         // Private constructor to prevent instantiation
     }
-    public static UserResponse toResponse(UserEntity user) {
-        return new UserResponse(
+    public static GetUserResponse toResponse(UserEntity user) {
+        return new GetUserResponse(
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getBalance()
         );
     }
-    public static List<UserResponse> toResponseList(List<UserEntity> users) {
+    public static List<GetUserResponse> toResponseList(List<UserEntity> users) {
         return users.stream()
                 .map(UserMapper::toResponse)
                 .toList();

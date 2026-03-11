@@ -1,5 +1,8 @@
 package de.casino.banking_service.user.model;
 
+import de.casino.banking_service.user.Utility.ErrorResult;
+import de.casino.banking_service.user.Utility.ErrorWrapper;
+import de.casino.banking_service.user.Utility.Result;
 import de.casino.banking_service.user.exceptions.InvalidAmountException;
 import de.casino.banking_service.user.exceptions.InvalidUserDataException;
 import jakarta.persistence.*;
@@ -8,7 +11,8 @@ import java.math.RoundingMode;
 
 @Entity //erstellt eine Tabelle in der Datenbank
 @Table(name = "users") // legt den Tabellennamen fest
-public class UserEntity {
+public class UserEntity implements IUserEntity{
+
 
     @Id //makiert primärschlüssel
     @GeneratedValue(strategy = GenerationType.IDENTITY) //auto inkrement in db
@@ -29,10 +33,22 @@ public class UserEntity {
 
     public UserEntity(String firstName, String lastName) {
 
-        validateName(firstName, lastName);
+        //validateName(firstName, lastName);
         this.firstName = firstName.trim();
         this.lastName = lastName.trim();
         this.balance = BigDecimal.ZERO.setScale(2, RoundingMode.UNNECESSARY); // Startbalance
+    }
+    public static Result<IUserEntity, ErrorWrapper> create(String firstName, String lastName) {
+
+        var requested = new UserEntity(firstName, lastName);
+        var isNameValid = requested.isNameNotEmpty(firstName);
+        var isLastNameValid = requested.isNameNotEmpty(lastName);
+        if (isNameValid.isFailure() || isLastNameValid.isFailure()) {
+            return Result.failure(
+                    isNameValid.isFailure() ? isNameValid.getFailureData().orElse(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR_OCCURED) :
+                            isLastNameValid.getFailureData().orElse(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR_OCCURED));
+        }
+        return Result.success(requested);
     }
 
 
@@ -78,6 +94,18 @@ public class UserEntity {
 
     }
 
+    private ErrorResult<ErrorWrapper> isNameNotEmpty(String name) {
+        if (name == null || name.isBlank()) {
+            return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_NAME_Blank_OR_NULL);
+        }
+        if (name.length() > 12) {
+            return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_NAME_LENGTH);
+        }
+
+        return ErrorResult.success();
+    }
+
+    
     private void validateName(String firstName, String lastName) {
 
         if (firstName == null || firstName.isBlank()) {
@@ -105,4 +133,7 @@ public class UserEntity {
     public String getLastName() { return lastName; }
 
     public BigDecimal getBalance() { return balance; }
+
+
+
 }

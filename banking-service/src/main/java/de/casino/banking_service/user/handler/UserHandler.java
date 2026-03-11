@@ -1,8 +1,12 @@
 package de.casino.banking_service.user.handler;
 
+import de.casino.banking_service.user.UserFactory.IUserFactory;
+import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
 import de.casino.banking_service.user.exceptions.UserNotFoundException;
+import de.casino.banking_service.user.model.IUserEntity;
 import de.casino.banking_service.user.model.UserEntity;
-import de.casino.banking_service.user.repository.UserRepository;
+import de.casino.banking_service.user.repository.IUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,10 +16,16 @@ import java.util.List;
 @Service
 public class UserHandler {
 
-    private final UserRepository userRepository;
+    private  final IUserRepository userRepository;
+    private  final IUserFactory userFactory;
+    private  final IUserResponseFactory userResponseFactory;
 
-    public UserHandler(UserRepository userRepository) {
+    @Autowired
+    public UserHandler(IUserRepository userRepository, IUserFactory userFactory, IUserResponseFactory userResponseFactory) {
         this.userRepository = userRepository;
+        this.userFactory =  userFactory;
+        this.userResponseFactory = userResponseFactory;
+
     }
 
     public UserEntity deleteUserByID(Long id) {
@@ -30,8 +40,7 @@ public class UserHandler {
     }
 
     public UserEntity getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        var result
     }
 
     public List<UserEntity> getAllUsers() {

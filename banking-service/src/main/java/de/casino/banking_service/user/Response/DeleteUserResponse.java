@@ -1,12 +1,13 @@
-package de.casino.banking_service.user.view;
+package de.casino.banking_service.user.Response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
-public record UserResponse(
-        Long id,
+public record DeleteUserResponse (
+
         @JsonProperty("first_name") String firstName,
         @JsonProperty("last_name") String lastName,
-        BigDecimal balance ){
-}
+        BigDecimal balance
+)   implements IUserResponse
+{ }

@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long> { //SpringData erzeugt methoden für db Zugriff, generisches repository<entity, type of primärschlüssel
+public interface IUserRepository extends JpaRepository<UserEntity, Long> { //SpringData erzeugt methoden für db Zugriff, generisches repository<entity, type of primärschlüssel
     // speichern UserEntity, ID ist Long
 }

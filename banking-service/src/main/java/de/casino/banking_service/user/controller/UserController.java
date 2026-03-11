@@ -4,10 +4,10 @@ package de.casino.banking_service.user.controller;
 import de.casino.banking_service.user.handler.UserHandler;
 import de.casino.banking_service.user.mapper.UserMapper;
 import de.casino.banking_service.user.model.UserEntity;
-import de.casino.banking_service.user.view.CreateUserRequest;
-import de.casino.banking_service.user.view.DeleteUserResponse;
-import de.casino.banking_service.user.view.UpdateUserRequest;
-import de.casino.banking_service.user.view.UserResponse;
+import de.casino.banking_service.user.Request.CreateUserRequest;
+import de.casino.banking_service.user.Response.DeleteUserResponse;
+import de.casino.banking_service.user.Request.UpdateUserRequest;
+import de.casino.banking_service.user.Response.GetUserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<GetUserResponse> getUserById(@PathVariable Long id) {
             UserEntity user = userHandler.getUserById(id);
            return ResponseEntity.ok(UserMapper.toResponse(user));
 
@@ -37,13 +37,13 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
+    public ResponseEntity<List<GetUserResponse>> getAllUsers() {
 
         return ResponseEntity.ok(UserMapper.toResponseList(userHandler.getAllUsers()));
     }
 
     @PostMapping("/user")
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest userRequest) {
+    public ResponseEntity<GetUserResponse> createUser(@Valid @RequestBody CreateUserRequest userRequest) {
             UserEntity user = userHandler.createUser(userRequest.firstName(), userRequest.lastName());
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -52,8 +52,8 @@ public class UserController {
     }
 
     @PutMapping("/user/{id}")
-    public ResponseEntity<UserResponse> renameUser(@PathVariable Long id,
-                                               @Valid  @RequestBody UpdateUserRequest userRequest) {
+    public ResponseEntity<GetUserResponse> renameUser(@PathVariable Long id,
+                                                      @Valid  @RequestBody UpdateUserRequest userRequest) {
 
         UserEntity user = userHandler.rename(id, userRequest.firstName(), userRequest.lastName());
         return ResponseEntity.ok(UserMapper.toResponse(user)); // 200 OK
@@ -69,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping("/user/{id}/deposit/{amount}/{decimals}")
-    public ResponseEntity<UserResponse> deposit(
+    public ResponseEntity<GetUserResponse> deposit(
             @PathVariable Long id,
             @PathVariable String amount,
             @PathVariable String decimals) {
@@ -83,7 +83,7 @@ public class UserController {
 
 }
     @PostMapping("/user/{id}/withdraw/{amount}/{decimals}")
-    public ResponseEntity<UserResponse> withdraw(
+    public ResponseEntity<GetUserResponse> withdraw(
             @PathVariable Long id,
             @PathVariable String amount,
             @PathVariable String decimals) {

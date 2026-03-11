@@ -1,4 +1,4 @@
-package de.casino.banking_service.user.view;
+package de.casino.banking_service.user.Request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
