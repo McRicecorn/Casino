@@ -31,7 +31,7 @@ public class UserEntity implements IUserEntity{
         // Default-Konstruktor für JPA
     }
 
-    public UserEntity(String firstName, String lastName) {
+    private UserEntity(String firstName, String lastName) {
 
         //validateName(firstName, lastName);
         this.firstName = firstName.trim();
@@ -40,61 +40,59 @@ public class UserEntity implements IUserEntity{
     }
     public static Result<IUserEntity, ErrorWrapper> create(String firstName, String lastName) {
 
-        var requested = new UserEntity(firstName, lastName);
-        var isNameValid = requested.isNameNotEmpty(firstName);
-        var isLastNameValid = requested.isNameNotEmpty(lastName);
+        var isNameValid = validateName(firstName);
+        var isLastNameValid = validateName(lastName);
         if (isNameValid.isFailure() || isLastNameValid.isFailure()) {
             return Result.failure(
                     isNameValid.isFailure() ? isNameValid.getFailureData().orElse(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR_OCCURED) :
                             isLastNameValid.getFailureData().orElse(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR_OCCURED));
         }
-        return Result.success(requested);
+        return Result.success(new UserEntity(firstName, lastName));
     }
 
 
-
-    public void rename(String newFirstName, String newLastName) {
-        validateName(newFirstName, newLastName);
-
-        this.firstName = newFirstName.trim();
-        this.lastName = newLastName.trim();
-    }
-
-    public void withdraw(BigDecimal amount) {
-        validateAmount(amount);
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Amount must be positive");
-        }
-        if (balance.compareTo(amount) <0) {
-            throw new InvalidAmountException("Insufficient funds");
-        }
-
-        this.balance = this.balance.subtract(amount);
-    }
-
-    public void deposit(BigDecimal amount) {
-        validateAmount(amount);
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Amount must be positive");
+    public ErrorResult<ErrorWrapper> deposit(BigDecimal amount) {
+        var validationResult = validateAmount(amount);
+        if (validationResult.isFailure()) {
+            return validationResult;
         }
         this.balance = this.balance.add(amount);
+        return ErrorResult.success();
+    }
+
+     public ErrorResult<ErrorWrapper> withdraw(BigDecimal amount) {
+        var validationResult = validateAmount(amount);
+        if (validationResult.isFailure()) {
+            return validationResult;
+        }
+        if (balance.compareTo(amount) < 0) {
+            return ErrorResult.failure(ErrorWrapper.USER_MODEL_INSUFFICIENT_BALANCE);
+        }
+
+
+        this.balance = this.balance.subtract(amount);
+        return ErrorResult.success();
     }
 
     //helprer methods
-    private void validateAmount(BigDecimal amount) {
+
+
+    private ErrorResult<ErrorWrapper> validateAmount(BigDecimal amount) {
         if (amount == null) {
-            throw new InvalidAmountException("Amount must not be null");
+            return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_AMOUNT_NULL);
         }
 
         if (amount.scale() > 2) {
-            throw new InvalidAmountException("Amount must have no more than 2 decimal places");
+            return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_AMOUNT_DECIMAL_PLACES);
+        }
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_AMOUNT_NEGATIVE);
         }
 
-
-
+        return ErrorResult.success();
     }
 
-    private ErrorResult<ErrorWrapper> isNameNotEmpty(String name) {
+    private static ErrorResult<ErrorWrapper> validateName(String name) {
         if (name == null || name.isBlank()) {
             return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_NAME_Blank_OR_NULL);
         }
@@ -102,26 +100,32 @@ public class UserEntity implements IUserEntity{
             return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_NAME_LENGTH);
         }
 
+
         return ErrorResult.success();
     }
 
-    
-    private void validateName(String firstName, String lastName) {
 
-        if (firstName == null || firstName.isBlank()) {
-            throw new InvalidUserDataException("First name invalid");
+
+
+    public ErrorResult<ErrorWrapper> rename(String newFirstName, String newLastName) {
+
+        var firstNameValidation = validateName(newFirstName);
+        if (firstNameValidation.isFailure()) {
+            return firstNameValidation;
         }
 
-        if (lastName == null || lastName.isBlank()) {
-            throw new InvalidUserDataException("Last name invalid");
+        var lastNameValidation = validateName(newLastName);
+        if (lastNameValidation.isFailure()) {
+            return lastNameValidation;
+        }
+        if (firstName.equals(newFirstName) && lastName.equals(newLastName)) {
+            return ErrorResult.failure(ErrorWrapper.USER_MODEL_IDENTICAL_NAME);
         }
 
-        if (this.firstName != null &&
-                firstName.equals(this.firstName) &&
-                lastName.equals(this.lastName)) {
+        this.firstName = newFirstName.trim();
+        this.lastName = newLastName.trim();
 
-            throw new InvalidUserDataException("New name must be different");
-        }
+        return ErrorResult.success();
     }
 
 
