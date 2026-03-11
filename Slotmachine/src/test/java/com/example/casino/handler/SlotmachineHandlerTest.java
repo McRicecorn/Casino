@@ -15,6 +15,7 @@ import com.example.casino.responseFactory.ISlotmachineResponseFactory;
 import com.example.casino.utility.ErrorWrapper;
 import com.example.casino.utility.Result;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.math.BigDecimal;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -63,6 +65,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("Should return an error if the input is 0 or negative")
     void play_Failure_InvalidBetAmount() {
         //betAmount is 0
         BigDecimal invalidBet = BigDecimal.ZERO;
@@ -80,8 +83,9 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("Should return an error if the balance is less than bet amount")
     void play_Failure_InsufficientBalance(){
-        //instantiate request with betAmouont bigger than bank balance
+        //instantiate request with betAmount bigger than bank balance
         //betAmount is 10
         ISlotmachineRequest request = new SlotmachineRequest(1L, BigDecimal.TEN);
 
@@ -100,8 +104,28 @@ class SlotmachineHandlerTest {
         verify(restTemplate).getForObject(anyString(), eq(BankingUserResponse.class));
         verifyNoInteractions(repository, modelFactory, responseFactory);
     }
+    @Test
+    @DisplayName("play should return error when banking service is not available")
+    void play_Failure_BankingServiceNotAvailable(){
+        //setup
+        ISlotmachineRequest request = new SlotmachineRequest(1L, BigDecimal.valueOf(10));
+
+        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+                .thenThrow(new RuntimeException("Banking Service currently not available"));
+
+        //test
+        var result = handler.play(request);
+
+        //assert isFailure and correct ErrorWrapper
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR, result.getFailureData().get());
+
+        verify(restTemplate).getForObject(contains("localhost:8080"), eq(BankingUserResponse.class));
+        verifyNoInteractions(repository);
+    }
 
     @Test
+    @DisplayName("Play is successful with no price won. Should return success with response data")
     void play_Success_NoWin(){
         ISlotmachineRequest request = new SlotmachineRequest(1L, BigDecimal.TEN);
 
@@ -149,6 +173,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("Play is successful with Jackpot won. Should return success with response data")
     void play_Success_Jackpot(){
         //bet amount = 50, userId = 1
         BigDecimal betAmount= BigDecimal.valueOf(50);
@@ -200,6 +225,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("Play is successful with small price won. Should return success with response data")
     void play_Success_SmallWin(){
         //bet amount = 50, userId = 1
         BigDecimal betAmount= BigDecimal.valueOf(50);
@@ -251,7 +277,8 @@ class SlotmachineHandlerTest {
     }
 
     @Test
-    void play_netAmountSuccessfullyTransmitted(){
+    @DisplayName("Play is successful. Asserts that the net amount has been correctly transferred to the banking service")
+    void play_netAmountSuccessfullyTransferred(){
         //setup
         //bet amount = 50, userId = 1
         BigDecimal betAmount= BigDecimal.valueOf(50);
@@ -304,27 +331,36 @@ class SlotmachineHandlerTest {
         BankingTransactionRequest capturedRequest = captor.getValue();
 
         assertTrue(result.isSuccess());
-        //assert if expected netAmount is actual netAmount
+        //assert that expected netAmount is actual netAmount
         assertEquals(expectedNetAmount, capturedRequest.getAmount());
     }
 
     @Test
-    void readAllGames_Failure() {
+    @DisplayName("readAllGames returns Success with empty list, as no games have been played yet")
+    void readAllGames_Success_EmptyList() {
         //setup
-        Optional<SlotmachineGameEntity> emptyResult = Optional.empty();
-        when(repository.findById(99L)).thenReturn(emptyResult);
+        List<SlotmachineGameEntity> emptyList = List.of();
+        when(repository.findAll()).thenReturn(emptyList);
 
         //test
-        var result = handler.readGame(99L);
+        var result = handler.readAllGames();
+        Iterable<ISlotmachineResponse> data = result.getSuccessData().get();
 
         //assert
-        assertTrue(result.isFailure());
-        assertEquals(ErrorWrapper.GAME_NOT_FOUND, result.getFailureData().get());
-        verify(repository).findById(99L);
+        assertTrue(result.isSuccess());
+        assertNotNull(data);
+
+        //assert that list and response data is equal in size
+        long dataSize = StreamSupport.stream(data.spliterator(), false).count();
+        assertEquals(emptyList.size(), dataSize);
+
+        verify(repository).findAll();
+        //no responses should be created, as there are none
         verifyNoInteractions(responseFactory);
     }
 
     @Test
+    @DisplayName("readAllGames returns Success with Response data")
     void readAllGames_Success(){
         //setup
         SlotmachineGameEntity game1 = mock(SlotmachineGameEntity.class);
@@ -355,6 +391,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("readGame returns error because repository is empty")
     void readGame_Failure(){
         //setup
         when(repository.findById(1L)).thenReturn(Optional.empty());
@@ -371,6 +408,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("readGame returns Success with game entity response data")
     void readGame_Success() {
         //mock game entity and response
         SlotmachineGameEntity gameEntity = mock(SlotmachineGameEntity.class);
@@ -391,6 +429,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("calculateChances returns success with String")
     void calculateChances() {
         //Test
         var result = handler.calculateChances();
@@ -398,13 +437,14 @@ class SlotmachineHandlerTest {
         //assertions
         assertTrue(result.isSuccess());
 
-        String rules = result.getSuccessData().get();
+        String chances = result.getSuccessData().get();
 
-        assertNotNull(rules);
-        assertTrue(rules.contains("as follows") && rules.contains("Small Win") && rules.contains("RTP"));
+        assertNotNull(chances);
+        assertTrue(chances.contains("as follows") && chances.contains("Small Win") && chances.contains("RTP"));
     }
 
     @Test
+    @DisplayName("getRules returns the result as a string containing the explained rules")
     void getRules() {
         //Test
         var result = handler.getRules();
@@ -418,6 +458,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("readUserStats returns Error NO_GAMES_FOUND, since User doesn't exist in list (empty)")
     void readUserStats_Failure(){
         //setup
         long userId = 1L;
@@ -436,6 +477,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("readUserStats returns Success and user statistics when games for the given user ID are found")
     void readUserStats_Success() {
         long userId = 1L;
 
@@ -461,8 +503,8 @@ class SlotmachineHandlerTest {
     }
 
 
-
     @Test
+    @DisplayName("readGlobalStats should return error when no games are found in the database")
     void readGlobalStats_Failure() {
         //setup
         when(repository.findAll()).thenReturn(List.of());
@@ -479,6 +521,7 @@ class SlotmachineHandlerTest {
     }
 
     @Test
+    @DisplayName("readGlobalStats should return success when games are found in database")
     void readGlobalStats_Success(){
         //mock game entity and create List
         SlotmachineGameEntity game1 = mock(SlotmachineGameEntity.class);

@@ -162,14 +162,10 @@ public class SlotmachineHandler implements ISlotmachineHandler {
 
     @Override
     public Result<Iterable<ISlotmachineResponse>, ErrorWrapper> readAllGames(){
-        var result = repository.findAll();
+        List<ISlotmachineResponse> finalResult = repository.findAll().stream()
+                .map(responseFactory::createSlotmachineResponse)
+                .toList();
 
-        var finalResult = new ArrayList<ISlotmachineResponse>();
-
-        for (ISlotmachineGameEntity slotmachineGameEntity : result){
-            var response = responseFactory.createSlotmachineResponse(slotmachineGameEntity);
-            finalResult.add(response);
-        }
         //return as success
         return Result.success(finalResult);
     }
