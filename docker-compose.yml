@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - db-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-service:5432/slotmachine_db
+      SPRING_DATASOURCE_USERNAME: slotmachine
+      SPRING_DATASOURCE_PASSWORD: passwort
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - mvc_network
+
+  db-service:
+    image: postgres:15
+    container_name: slotmachine-db
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: slotmachine_db
+      POSTGRES_USER: slotmachine
+      POSTGRES_PASSWORD: passwort
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mvc_network
+
+networks:
+  mvc_network:
+
+volumes:
+  postgres_data:
