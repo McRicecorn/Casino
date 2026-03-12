@@ -49,16 +49,27 @@ public class SlotmachineGameEntity implements ISlotmachineGameEntity {
     public static Result<ISlotmachineGameEntity, ErrorWrapper> create(long userId, BigDecimal betAmount, BigDecimal winAmount, boolean isWinning, String slotResult, LocalDateTime timestamp) {
         var requested = new SlotmachineGameEntity(userId, betAmount, winAmount, isWinning, slotResult, timestamp);
 
+        //check if bet amount is valid
         var isBetAmountValid = requested.isBetAmountValid();
-
         if (isBetAmountValid.isFailure()){
             return Result.failure(isBetAmountValid.getFailureData().orElse(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR));
         }
+
+        //check if boolean corresponds with winAmount
+        if (isWinning && winAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            return Result.failure(ErrorWrapper.INCONSISTENT_DATA);
+        }
+
+        //check if result string is not null
+        if (slotResult == null || slotResult.isBlank()) {
+            return Result.failure(ErrorWrapper.INVALID_SLOT_RESULT);
+        }
+
         return Result.success(requested);
     }
 
     private ErrorResult<ErrorWrapper> isBetAmountValid() {
-        //ist der Einsatz negativ? -> Fehler
+        //ist der Einsatz negativ? → Fehler
         if (betAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return ErrorResult.failure(ErrorWrapper.INVALID_BET_AMOUNT);
         }

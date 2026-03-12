@@ -15,6 +15,7 @@ import com.example.casino.responseFactory.ISlotmachineResponseFactory;
 import com.example.casino.utility.ErrorWrapper;
 import com.example.casino.utility.Result;
 import com.example.casino.utility.SlotSymbols;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -100,18 +101,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         }
 
         //check if all symbols are the same
-        boolean isWinningBig = reelResult.get(0) == reelResult.get(1) && reelResult.get(1) == reelResult.get(2);
-        boolean isWinningSmall = reelResult.get(0) == reelResult.get(1) || reelResult.get(1) == reelResult.get(2) || reelResult.get(0) == reelResult.get(2);
-
-        BigDecimal winAmount;
-        //calculate win amount
-        if (isWinningBig){
-            winAmount = request.getBetAmount().multiply(BigDecimal.TEN);
-        }else if (isWinningSmall){
-            winAmount = request.getBetAmount().multiply(BigDecimal.valueOf(2));
-        }else{
-            winAmount = BigDecimal.ZERO;
-        }
+        BigDecimal winAmount = getWinAmount(request, reelResult);
 
         boolean isWinning = winAmount.compareTo(BigDecimal.ZERO) > 0;
 
@@ -160,6 +150,22 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         return Result.success(response);
     }
 
+    private static @NonNull BigDecimal getWinAmount(ISlotmachineRequest request, List<SlotSymbols> reelResult) {
+        boolean isWinningBig = reelResult.get(0) == reelResult.get(1) && reelResult.get(1) == reelResult.get(2);
+        boolean isWinningSmall = reelResult.get(0) == reelResult.get(1) || reelResult.get(1) == reelResult.get(2) || reelResult.get(0) == reelResult.get(2);
+
+        BigDecimal winAmount;
+        //calculate win amount
+        if (isWinningBig){
+            winAmount = request.getBetAmount().multiply(BigDecimal.TEN);
+        }else if (isWinningSmall){
+            winAmount = request.getBetAmount().multiply(BigDecimal.valueOf(2));
+        }else{
+            winAmount = BigDecimal.ZERO;
+        }
+        return winAmount;
+    }
+
     @Override
     public Result<Iterable<ISlotmachineResponse>, ErrorWrapper> readAllGames(){
         List<ISlotmachineResponse> finalResult = repository.findAll().stream()
@@ -199,10 +205,11 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         double rtp = (bigWinChance * 10) + (smallWinChance * 2);
 
         String message = String.format(
-                "With %d symbols, your chances are as follows:\n" +
-                        "- Jackpot (3 matching): %.2f%%\n" +
-                        "- Small Win (exactly 2 matching): %.2f%%\n" +
-                        "- RTP (Theoretical Return to Player): %.2f%%",
+                """
+                        With %d symbols, your chances are as follows:
+                        - Jackpot (3 matching): %.2f%%
+                        - Small Win (exactly 2 matching): %.2f%%
+                        - RTP (Theoretical Return to Player): %.2f%%""",
                 n, bigWinChance * 100, smallWinChance * 100, rtp * 100
         );
 
@@ -211,12 +218,13 @@ public class SlotmachineHandler implements ISlotmachineHandler {
 
     @Override
     public Result<String, ErrorWrapper> getRules(){
-        String rules = "Slot Machine Rules:\n" +
-                "First, select your bet amount and start the game.\n" +
-                "Three matching symbols win the Jackpot of 10 x the bet amount!\n" +
-                "Two matching symbols win a prize of 2 x the bet amount!\n" +
-                "No matching symbols loose the bet amount.\n" +
-                "The net result will be automatically updated in your banking account.";
+        String rules = """
+                Slot Machine Rules:
+                First, select your bet amount and start the game.
+                Three matching symbols win the Jackpot of 10 x the bet amount!
+                Two matching symbols win a prize of 2 x the bet amount!
+                No matching symbols loose the bet amount.
+                The net result will be automatically updated in your banking account.""";
         return Result.success(rules);
     }
 
