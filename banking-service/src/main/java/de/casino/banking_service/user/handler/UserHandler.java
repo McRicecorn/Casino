@@ -1,8 +1,10 @@
 package de.casino.banking_service.user.handler;
 
+import de.casino.banking_service.user.Request.IUserRequest;
 import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.UserFactory.IUserFactory;
 import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
+import de.casino.banking_service.user.Utility.ErrorResult;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
 import de.casino.banking_service.user.Utility.Result;
 import de.casino.banking_service.user.exceptions.UserNotFoundException;
@@ -30,64 +32,137 @@ public class UserHandler implements IUserHandler {
         this.userFactory =  userFactory;
         this.userResponseFactory = userResponseFactory;
 
-    }
 
-    public UserEntity deleteUserByID(Long id) {
-        UserEntity user = getUserById(id);
-        userRepository.delete(user);
-        return user;
-    }
 
-    public UserEntity createUser(String first_name, String last_name) {
-        UserEntity user = new UserEntity(first_name, last_name);
-        return userRepository.save(user);
-    }
+        }
 
-    public UserEntity getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
-    }
 
-    public List<UserEntity> getAllUsers() {
-        return userRepository.findAll();
-    }
 
-    @Transactional
-    public UserEntity deposit(Long id, BigDecimal amount) {
-        UserEntity user = getUserById(id);
-        user.deposit(amount);
-        return userRepository.save(user);
-    }
-
-    @Transactional
-    public UserEntity withdraw(Long id, BigDecimal amount) {
-        UserEntity user = getUserById(id);
-        user.withdraw(amount);
-        return userRepository.save(user);
-    }
-
-    public UserEntity rename(Long id, String first_name, String last_name) {
-        UserEntity user = getUserById(id);
-        user.rename(first_name, last_name);
-        return userRepository.save(user);
-    }
-
-    /// ////////////////////////////
-    public Result<IUserResponse, ErrorWrapper> getUserByIdResponse(Long id) {
+    private Result<UserEntity, ErrorWrapper> findUserById(Long id) {
         var result = userRepository.findById(id);
         if (result.isPresent()) {
-            return Result.success(userResponseFactory.createGet(result.get()));
+            return Result.success(result.get());
         }
         return Result.failure(ErrorWrapper.USER_NOT_FOUND);
     }
+/*
+    private Result<IUserResponse, ErrorWrapper> getUserByName(String firstName, String lastName) {
+       var existingUser = userRepository.findByFirstNameAndLastName(firstName, lastName);
 
-    public List<IUserResponse> getAllUsersResponse() {
-        List<UserEntity> users = userRepository.findAll();
-        List <IUserResponse> userResponses = new ArrayList<>();
-        for (UserEntity user : users) {
-            userResponses.add(userResponseFactory.createGet(user));
+        if (existingUser.isPresent()) {
+            return Result.success(userResponseFactory.createGet(existingUser.get()));
         }
-        return userResponses    ;
+        return Result.failure(ErrorWrapper.USER_NOT_FOUND);
+
+    }
+ */
+
+    public Result<IUserResponse, ErrorWrapper> getUserByIdResponse(long id) {
+        var userResult = findUserById(id);
+
+        if(userResult.isFailure()) {
+            return Result.failure(userResult.getFailureData().get());
+        }
+
+        return Result.success(
+                userResponseFactory.createGet(userResult.getSuccessData().get())
+        );
+    }
+
+
+
+    public Result<IUserResponse, ErrorWrapper> createUser(IUserRequest request) {
+
+        /*
+        if (getUserByName(request.firstName(), request.lastName() ).isSuccess()) {
+            return Result.failure(ErrorWrapper.USER_MODEL_IDENTICAL_NAME);
+        }
+
+
+         */
+        var user = userFactory.create(request.firstName(), request.lastName());
+
+        if (user.isFailure()) {
+            return Result.failure(user.getFailureData().get());
+
+        }
+
+        userRepository.save((UserEntity) user.getSuccessData().get());
+
+        var response = userResponseFactory.createGet( user.getSuccessData().get());
+        return Result.success(response);
+    }
+
+    public Result<IUserResponse, ErrorWrapper> updateUserName(long id, IUserRequest request) {
+        var findUser = findUserById(id);
+        if (findUser.isFailure()) {
+            return Result.failure(findUser.getFailureData().get());
+        }
+        var user = findUser.getSuccessData().get();
+
+        var updateResult =  user.rename(request.firstName(), request.lastName());
+
+        if (updateResult.isFailure()) {
+            return Result.failure(updateResult.getFailureData().get());
+        }
+
+        userRepository.save(user);
+        return Result.success(userResponseFactory.createGet( user));
+
+    }
+
+
+     public Result<IUserResponse, ErrorWrapper> deleteUser(long id) {
+         var findUser = findUserById(id);
+         if (findUser.isFailure()) {
+             return Result.failure(findUser.getFailureData().get());
+         }
+         var user = findUser.getSuccessData().get();
+         userRepository.delete( user);
+         var response = userResponseFactory.createDelete(user);
+
+         return Result.success(response);
+     }
+
+     public Result<Iterable<IUserResponse>, ErrorWrapper> getAllUsers (){
+            var users = userRepository.findAll();
+            var result  = new ArrayList<IUserResponse>();
+            for (UserEntity user : users) {
+                var response = userResponseFactory.createGet(user);
+                result.add(response);
+            }
+            return Result.success(result);
+     }
+
+     public Result<IUserResponse, ErrorWrapper> deposit(long id, BigDecimal amount) {
+        var findUser = findUserById(id);
+        if (findUser.isFailure()) {
+            return Result.failure(findUser.getFailureData().get());
+        }
+        var user = findUser.getSuccessData().get();
+
+        var depositResult = user.deposit(amount);
+        if (depositResult.isFailure()) {
+            return Result.failure(depositResult.getFailureData().get());
+        }
+        userRepository.save(user);
+        return Result.success(userResponseFactory.createGet( user));
+    }
+
+     public Result<IUserResponse, ErrorWrapper> withdraw(long id, BigDecimal amount) {
+         var findUser = findUserById(id);
+         if (findUser.isFailure()) {
+             return Result.failure(findUser.getFailureData().get());
+         }
+         var user = findUser.getSuccessData().get();
+
+        var withdrawResult = user.withdraw(amount);
+        if (withdrawResult.isFailure()) {
+            return Result.failure(withdrawResult.getFailureData().get());
+        }
+        userRepository.save( user);
+
+        return Result.success(userResponseFactory.createGet( user));
     }
 
 

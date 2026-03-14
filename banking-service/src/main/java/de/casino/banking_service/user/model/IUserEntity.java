@@ -12,6 +12,7 @@ public interface IUserEntity {
     BigDecimal getBalance();
 
 
+
     ErrorResult<ErrorWrapper> deposit(BigDecimal amount);
     ErrorResult<ErrorWrapper> withdraw(BigDecimal amount);
     ErrorResult<ErrorWrapper> rename(String newFirstName, String newLastName);

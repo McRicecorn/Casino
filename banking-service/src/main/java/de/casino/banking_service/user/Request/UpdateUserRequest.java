@@ -8,5 +8,5 @@ public record UpdateUserRequest (
         @NotBlank(message = "First name must not be blank") String firstName,
         @JsonProperty("last_name")
         @NotBlank(message = "Lirst name must not be blank") String lastName
-    )
+    ) implements IUserRequest
 {}

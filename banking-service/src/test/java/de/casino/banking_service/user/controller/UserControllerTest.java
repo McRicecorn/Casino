@@ -1,354 +1,287 @@
 package de.casino.banking_service.user.controller;
 
+import de.casino.banking_service.user.Request.CreateUserRequest;
+import de.casino.banking_service.user.Request.IUserRequest;
+import de.casino.banking_service.user.Request.UpdateUserRequest;
+import de.casino.banking_service.user.Response.DeleteUserResponse;
+import de.casino.banking_service.user.Response.GetUserResponse;
+import de.casino.banking_service.user.Response.IUserResponse;
+import de.casino.banking_service.user.Utility.ErrorWrapper;
+import de.casino.banking_service.user.Utility.Result;
 import de.casino.banking_service.user.exceptions.GlobalExceptionHandler;
 import de.casino.banking_service.user.exceptions.InvalidAmountException;
 import de.casino.banking_service.user.exceptions.InvalidUserDataException;
 import de.casino.banking_service.user.exceptions.UserNotFoundException;
+import de.casino.banking_service.user.handler.IUserHandler;
 import de.casino.banking_service.user.handler.UserHandler;
 import de.casino.banking_service.user.model.UserEntity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.mockito.Mockito.when;
 
 
-@WebMvcTest(UserController.class)
-@Import(GlobalExceptionHandler.class)
-class UserControllerTest {
+public class UserControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private UserController controller;
+    private IUserHandler mockHandler;
 
-    @MockitoBean
-    private UserHandler userHandler;
-
-    //getUserById Tests
-    @Test
-    void getUserById_shouldReturn200() throws Exception{
-        UserEntity user = new UserEntity("John", "Doe");
-
-        when(userHandler.getUserById(1L)).thenReturn(user);
-
-        mockMvc.perform(get("/casino/bank/api/user/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.first_name").value("John"))
-                .andExpect(jsonPath("$.last_name").value("Doe"));
-
-    }
-
-    @Test
-    void getUserById_shouldReturn400_UserString() throws Exception{
-        mockMvc.perform(get("/casino/bank/api/user/abc"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getUserById_shouldReturn404_NonExistingUser() throws Exception{
-        when(userHandler.getUserById(999L)).thenThrow(new UserNotFoundException(999L));
-
-        mockMvc.perform(get("/casino/bank/api/user/999"))
-                .andExpect(status().isNotFound());
-    }
-
-
-    //getAllUsers Tests
-    @Test
-    void getAllUsers_shouldReturn200() throws Exception {
-        List<UserEntity> users = List.of(
-                new UserEntity("Max", "Mustermann"),
-                new UserEntity("Anna", "Meyer")
-        );
-
-        when(userHandler.getAllUsers()).thenReturn(users);
-
-        mockMvc.perform(get("/casino/bank/api/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
-    }
-
-    //createUser Tests
-    @Test
-    void createUser_shouldReturn201() throws Exception {
-
-        String userJson = """
-                {
-                    "first_name": "Alice",
-                    "last_name": "Smith"
-                }
-                """;
-        UserEntity createdUser = new UserEntity("Alice", "Smith");
-        when(userHandler.createUser("Alice", "Smith")).thenReturn(createdUser);
-
-        mockMvc.perform(post("/casino/bank/api/user")
-                        .contentType("application/json")
-                        .content(userJson))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.first_name").value("Alice"))
-                .andExpect(jsonPath("$.last_name").value("Smith"))
-                .andExpect(jsonPath("$.balance").value(0));
-                //ID noch?
-    }
-
-    @Test
-    void createUser_shouldReturn400_MissingFirstName() throws Exception {
-        when(userHandler.createUser("", "Mustermann"))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        String json = """
-        {
-            "first_name": "",
-            "last_name": "Mustermann"
-        }
-    """;
-
-        mockMvc.perform(post("/casino/bank/api/user")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createUser_shouldReturn400_MissingLastName() throws Exception {
-        when(userHandler.createUser("Max", ""))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        String json = """
-        {
-            "first_name": "Max",
-            "last_name": ""
-        }
-    """;
-
-        mockMvc.perform(post("/casino/bank/api/user")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createUser_shouldReturn400_BlankFirstName() throws Exception {
-        String userJson = """
-                {
-                    "first_name": "   ",
-                    "last_name": "Smith"
-                }
-                """;
-
-        when(userHandler.createUser("   ", "Smith"))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        mockMvc.perform(post("/casino/bank/api/user")
-                        .contentType("application/json")
-                        .content(userJson))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createUser_shouldReturn400_BlankLastName() throws Exception {
-        String userJson = """
-                {
-                    "first_name": "Alice",
-                    "last_name": "   "
-                }
-                """;
-
-        when(userHandler.createUser("Alice", "   "))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        mockMvc.perform(post("/casino/bank/api/user")
-                        .contentType("application/json")
-                        .content(userJson))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createUser_shouldReturn400_InvalidJson() throws Exception {
-        String userJson = """
-                {
-                    "first_name": "Alice",
-                    "last_name": "Smith
-                }
-                """;
-
-        mockMvc.perform(post("/casino/bank/api/user")
-                        .contentType("application/json")
-                        .content(userJson))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void deposit_shouldReturn200_whenValid() throws Exception {
-
-        UserEntity user = new UserEntity("Max", "Mustermann");
-
-        when(userHandler.deposit(eq(1L), any()))
-                .thenReturn(user);
-
-        mockMvc.perform(post("/casino/bank/api/user/1/deposit/100/00"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void deposit_shouldReturn400_whenInvalidNumber() throws Exception {
-
-        mockMvc.perform(post("/casino/bank/api/user/1/deposit/abc/xy"))
-                .andExpect(status().isBadRequest());
-    }
-    @Test
-    void deposit_shouldReturn404_whenUserNotFound() throws Exception {
-
-        when(userHandler.deposit(eq(999L), any()))
-                .thenThrow(new UserNotFoundException(999L));
-
-        mockMvc.perform(post("/casino/bank/api/user/999/deposit/100/00"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void deposit_shouldReturn400_whenInvalidAmount() throws Exception {
-
-        when(userHandler.deposit(eq(1L), any()))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        mockMvc.perform(post("/casino/bank/api/user/1/deposit/100/00"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void deposit_shouldReturn400_whenDecimalsMoreThanTwo() throws Exception {
-
-        when(userHandler.deposit(eq(1L), any()))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        mockMvc.perform(post("/casino/bank/api/user/1/deposit/100/000"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void renameUser_shouldReturn200() throws Exception {
-
-        UserEntity renamedUser = new UserEntity("New", "Name");
-
-        when(userHandler.rename(1L, "New", "Name"))
-                .thenReturn(renamedUser);
-
-        String json = """
-        {
-            "first_name": "New",
-            "last_name": "Name"
-        }
-    """;
-
-        mockMvc.perform(put("/casino/bank/api/user/1")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.first_name").value("New"))
-                .andExpect(jsonPath("$.last_name").value("Name"))
-                .andExpect(jsonPath("$.balance").value(0));
-    }
-
-    @Test
-    void renameUser_shouldReturn404_whenUserNotFound() throws Exception {
-
-        when(userHandler.rename(999L, "New", "Name"))
-                .thenThrow(new UserNotFoundException(999L));
-
-        String json = """
-        {
-            "first_name": "New",
-            "last_name": "Name"
-        }
-    """;
-
-        mockMvc.perform(put("/casino/bank/api/user/999")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void renameUser_shouldReturn400_whenInvalidData() throws Exception {
-
-        when(userHandler.rename(1L, "", "Name"))
-                .thenThrow(new InvalidUserDataException("invalid"));
-
-        String json = """
-        {
-            "first_name": "",
-            "last_name": "Name"
-        }
-    """;
-
-        mockMvc.perform(put("/casino/bank/api/user/1")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void deleteUser_shouldReturn200() throws Exception {
-
-        UserEntity deletedUser = new UserEntity("John", "Doe");
-
-        when(userHandler.deleteUserByID(1L))
-                .thenReturn(deletedUser);
-
-        mockMvc.perform(delete("/casino/bank/api/user/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.first_name").value("John"));
-    }
-
-    @Test
-    void deleteUser_shouldReturn404() throws Exception {
-
-        when(userHandler.deleteUserByID(999L))
-                .thenThrow(new UserNotFoundException(999L));
-
-        mockMvc.perform(delete("/casino/bank/api/user/999"))
-                .andExpect(status().isNotFound());
+    @BeforeEach
+    public void setUp() {
+        mockHandler = mock(IUserHandler.class);
+        controller = new UserController(mockHandler);
     }
 
 
     @Test
-    void withdraw_shouldReturn200_whenValid() throws Exception {
+    void getUserById_WhenUserExists_ShouldReturnResponse() {
 
-        UserEntity user = new UserEntity("Max", "Mustermann");
+        Long id = 1L;
+        IUserResponse response = mock(IUserResponse.class);
 
-        when(userHandler.withdraw(eq(1L), any()))
-                .thenReturn(user);
+        when(mockHandler.getUserByIdResponse(id))
+                .thenReturn(Result.success(response));
 
-        mockMvc.perform(post("/casino/bank/api/user/1/withdraw/50/00"))
-                .andExpect(status().isOk());
+        ResponseEntity<?> result = controller.getUserById(id);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(response, result.getBody());
+
+        verify(mockHandler, times(1)).getUserByIdResponse(id);
+    }
+    @Test
+    void getUserById_WhenUserDoesNotExist_ShouldReturnNotFound() {
+
+        Long id = 1L;
+        ErrorWrapper error = mock(ErrorWrapper.class);
+
+        when(mockHandler.getUserByIdResponse(id))
+                .thenReturn(Result.failure(error));
+
+        when(error.getHttpStatus()).thenReturn(HttpStatus.NOT_FOUND);
+        when(error.getMessage()).thenReturn("User not found");
+
+        ResponseEntity<?> result = controller.getUserById(id);
+
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertEquals("User not found", result.getBody());
+        verify(mockHandler, times(1)).getUserByIdResponse(id);
     }
 
     @Test
-    void withdraw_shouldReturn400_whenInvalidAmount() throws Exception {
+    void getAllUsers_ShouldReturnListOfUsers() {
 
-        when(userHandler.withdraw(eq(1L), any()))
-                .thenThrow(new InvalidAmountException("invalid"));
+        List<IUserResponse> users = List.of(mock(IUserResponse.class), mock(IUserResponse.class));
 
-        mockMvc.perform(post("/casino/bank/api/user/1/withdraw/50/00"))
-                .andExpect(status().isBadRequest());
+        when(mockHandler.getAllUsers())
+                .thenReturn(Result.success(users));
+
+        ResponseEntity<?> result = controller.getAllUser();
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(users, result.getBody());
+
+        verify(mockHandler, times(1)).getAllUsers();
     }
 
     @Test
-    void withdraw_shouldReturn404_whenUserNotFound() throws Exception {
+    void createUser_WhenValidRequest_ShouldReturnUser() {
 
-        when(userHandler.withdraw(eq(999L), any()))
-                .thenThrow(new UserNotFoundException(999L));
+        CreateUserRequest request = mock(CreateUserRequest.class);
+        IUserResponse response = mock(IUserResponse.class);
 
-        mockMvc.perform(post("/casino/bank/api/user/999/withdraw/50/00"))
-                .andExpect(status().isNotFound());
+        when(mockHandler.createUser(request))
+                .thenReturn(Result.success(response));
+
+        ResponseEntity<?> result = controller.createUser(request);
+
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertEquals(response, result.getBody());
+
+        verify(mockHandler, times(1)).createUser(request);
+    }
+
+    @Test
+    void createUser_WhenInvalidRequest_ShouldReturnBadRequest() {
+
+        CreateUserRequest request = mock(CreateUserRequest.class);
+        ErrorWrapper error = mock(ErrorWrapper.class);
+
+        when(mockHandler.createUser(request))
+                .thenReturn(Result.failure(error));
+
+        when(error.getHttpStatus()).thenReturn(HttpStatus.BAD_REQUEST);
+        when(error.getMessage()).thenReturn("Invalid user data");
+
+        ResponseEntity<?> result = controller.createUser(request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("Invalid user data", result.getBody());
+
+        verify(mockHandler, times(1)).createUser(request);
+    }
+
+    @Test
+    void updateUserName_WhenValidRequest_ShouldReturnUser() {
+        Long id = 1L;
+        UpdateUserRequest request = mock(UpdateUserRequest.class);
+        IUserResponse response = mock(IUserResponse.class);
+
+        when(mockHandler.updateUserName(id, request))
+                .thenReturn(Result.success(response));
+
+        ResponseEntity<?> result = controller.renameUser(id, request);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(response, result.getBody());
+
+        verify(mockHandler, times(1)).updateUserName(id, request);
+    }
+
+    @Test
+    void updateUserName_WhenInvalidRequest_ShouldReturnBadRequest() {
+        Long id = 1L;
+        UpdateUserRequest request = mock(UpdateUserRequest.class);
+        ErrorWrapper error = mock(ErrorWrapper.class);
+
+        when(mockHandler.updateUserName(id, request))
+                .thenReturn(Result.failure(error));
+
+        when(error.getHttpStatus()).thenReturn(HttpStatus.BAD_REQUEST);
+        when(error.getMessage()).thenReturn("Invalid user data");
+
+        ResponseEntity<?> result = controller.renameUser(id, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("Invalid user data", result.getBody());
+
+        verify(mockHandler, times(1)).updateUserName(id, request);
+    }
+
+    @Test
+    void deleteUser_WhenUserExists_ShouldReturnSuccess() {
+        Long id = 1L;
+        DeleteUserResponse response = mock(DeleteUserResponse.class);
+
+        when(mockHandler.deleteUser(id))
+                .thenReturn(Result.success(response));
+
+        ResponseEntity<?> result = controller.deleteUser(id);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(response, result.getBody());
+
+        verify(mockHandler, times(1)).deleteUser(id);
+    }
+
+    @Test
+    void deleteUser_WhenUserDoesNotExist_ShouldReturnNotFound() {
+        Long id = 1L;
+        ErrorWrapper error = mock(ErrorWrapper.class);
+
+        when(mockHandler.deleteUser(id))
+                .thenReturn(Result.failure(error));
+
+        when(error.getHttpStatus()).thenReturn(HttpStatus.NOT_FOUND);
+        when(error.getMessage()).thenReturn("User not found");
+
+        ResponseEntity<?> result = controller.deleteUser(id);
+
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertEquals("User not found", result.getBody());
+
+        verify(mockHandler, times(1)).deleteUser(id);
+    }
+
+
+    @Test
+    void deposit_WhenValidRequest_ShouldReturnUser() {
+
+        Long id = 1L;
+        BigDecimal amount = new BigDecimal("100.00");
+        GetUserResponse response = mock(GetUserResponse.class);
+
+        when(mockHandler.deposit(id, amount))
+                .thenReturn(Result.success(response));
+
+        ResponseEntity<?> result = controller.deposit(id, "100", "00");
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(response, result.getBody());
+        verify(mockHandler, times(1)).deposit(id, amount);
+
+    }
+
+    @Test
+    void deposit_WhenInvalidRequest_ShouldReturnBadRequest() {
+        Long id = 1L;
+        BigDecimal amount = new BigDecimal("-100.00");
+        ErrorWrapper error = mock(ErrorWrapper.class);
+
+        when(mockHandler.deposit(id, amount))
+                .thenReturn(Result.failure(error));
+
+        when(error.getHttpStatus()).thenReturn(HttpStatus.BAD_REQUEST);
+        when(error.getMessage()).thenReturn("Invalid amount");
+
+        ResponseEntity<?> result = controller.deposit(id, "-100", "00");
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("Invalid amount", result.getBody());
+
+        verify(mockHandler, times(1)).deposit(id, amount);
+    }
+
+    @Test
+    void withdraw_WhenValidRequest_ShouldReturnUser() {
+
+        Long id = 1L;
+        BigDecimal amount = new BigDecimal("50.00");
+        GetUserResponse response = mock(GetUserResponse.class);
+
+        when(mockHandler.withdraw(id, amount))
+                .thenReturn(Result.success(response));
+
+        ResponseEntity<?> result = controller.withdraw(id, "50", "00");
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(response, result.getBody());
+        verify(mockHandler, times(1)).withdraw(id, amount);
+
+    }
+
+    @Test
+    void withdraw_WhenInvalidRequest_ShouldReturnBadRequest() {
+        Long id = 1L;
+        BigDecimal amount = new BigDecimal("-50.00");
+        ErrorWrapper error = mock(ErrorWrapper.class);
+
+        when(mockHandler.withdraw(id, amount))
+                .thenReturn(Result.failure(error));
+
+        when(error.getHttpStatus()).thenReturn(HttpStatus.BAD_REQUEST);
+        when(error.getMessage()).thenReturn("Invalid amount");
+
+        ResponseEntity<?> result = controller.withdraw(id, "-50", "00");
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("Invalid amount", result.getBody());
+
+        verify(mockHandler, times(1)).withdraw(id, amount);
     }
 }

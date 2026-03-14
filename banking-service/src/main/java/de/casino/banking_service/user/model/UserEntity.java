@@ -27,7 +27,7 @@ public class UserEntity implements IUserEntity{
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
 
-    public UserEntity() {
+    protected UserEntity() {
 
     }
 

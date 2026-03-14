@@ -9,7 +9,9 @@ import jakarta.validation.constraints.NotBlank;
             @JsonProperty("first_name")
             @NotBlank(message = "First name must not be blank") String firstName,
             @JsonProperty("last_name")
-            @NotBlank(message = "Lirst name must not be blank") String lastName) {
+            @NotBlank(message = "Last name must not be blank") String lastName)
+    implements IUserRequest
+    {
 
     }
 
