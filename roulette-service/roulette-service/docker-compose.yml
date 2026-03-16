@@ -1,0 +1,15 @@
+services:
+  roulette-db:
+    image: postgres:16
+    container_name: roulette-db
+    environment:
+      POSTGRES_DB: roulette
+      POSTGRES_USER: roulette
+      POSTGRES_PASSWORD: roulette
+    ports:
+      - "5432:5432"
+    volumes:
+      - roulette_pgdata:/var/lib/postgresql/data
+
+volumes:
+  roulette_pgdata:
