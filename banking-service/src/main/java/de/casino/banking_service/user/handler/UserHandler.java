@@ -4,16 +4,13 @@ import de.casino.banking_service.user.Request.IUserRequest;
 import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.UserFactory.IUserFactory;
 import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
-import de.casino.banking_service.user.Utility.ErrorResult;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
 import de.casino.banking_service.user.Utility.Result;
-import de.casino.banking_service.user.exceptions.UserNotFoundException;
-import de.casino.banking_service.user.model.IUserEntity;
+
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

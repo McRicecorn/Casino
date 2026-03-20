@@ -7,16 +7,14 @@ import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
 import de.casino.banking_service.user.Utility.ErrorResult;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
 import de.casino.banking_service.user.Utility.Result;
-import de.casino.banking_service.user.exceptions.InvalidAmountException;
-import de.casino.banking_service.user.exceptions.InvalidUserDataException;
-import de.casino.banking_service.user.exceptions.UserNotFoundException;
+
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.IUserRepository;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 

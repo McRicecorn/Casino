@@ -3,8 +3,7 @@ package de.casino.banking_service.user.model;
 import de.casino.banking_service.user.Utility.ErrorResult;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
 import de.casino.banking_service.user.Utility.Result;
-import de.casino.banking_service.user.exceptions.InvalidAmountException;
-import de.casino.banking_service.user.exceptions.InvalidUserDataException;
+
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;

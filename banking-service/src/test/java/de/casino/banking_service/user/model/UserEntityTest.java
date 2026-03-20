@@ -2,8 +2,7 @@ package de.casino.banking_service.user.model;
 
 
 import de.casino.banking_service.user.Utility.ErrorWrapper;
-import de.casino.banking_service.user.exceptions.InvalidAmountException;
-import de.casino.banking_service.user.exceptions.InvalidUserDataException;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,11 +10,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
-import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;

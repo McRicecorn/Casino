@@ -1,39 +1,31 @@
 package de.casino.banking_service.user.controller;
 
 import de.casino.banking_service.user.Request.CreateUserRequest;
-import de.casino.banking_service.user.Request.IUserRequest;
+
 import de.casino.banking_service.user.Request.UpdateUserRequest;
 import de.casino.banking_service.user.Response.DeleteUserResponse;
 import de.casino.banking_service.user.Response.GetUserResponse;
 import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
 import de.casino.banking_service.user.Utility.Result;
-import de.casino.banking_service.user.exceptions.GlobalExceptionHandler;
-import de.casino.banking_service.user.exceptions.InvalidAmountException;
-import de.casino.banking_service.user.exceptions.InvalidUserDataException;
-import de.casino.banking_service.user.exceptions.UserNotFoundException;
+
 import de.casino.banking_service.user.handler.IUserHandler;
-import de.casino.banking_service.user.handler.UserHandler;
-import de.casino.banking_service.user.model.UserEntity;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+
+
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 
 public class UserControllerTest {

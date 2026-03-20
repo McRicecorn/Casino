@@ -1,15 +1,9 @@
 package de.casino.banking_service.user.controller;
 
 
-import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.handler.IUserHandler;
-import de.casino.banking_service.user.handler.UserHandler;
-import de.casino.banking_service.user.mapper.UserMapper;
-import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.Request.CreateUserRequest;
-import de.casino.banking_service.user.Response.DeleteUserResponse;
 import de.casino.banking_service.user.Request.UpdateUserRequest;
-import de.casino.banking_service.user.Response.GetUserResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 //@AllArgsConstructor
 @RestController
