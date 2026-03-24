@@ -19,5 +19,5 @@ public interface ITransactionEntity {
 
     public ErrorResult <ErrorWrapper> setInvoicingParty(String invoicingParty);
 
-    public ErrorResult <ErrorWrapper> setUser(UserEntity user);
+    public ErrorResult <ErrorWrapper> setUserId(Long userId);
 }

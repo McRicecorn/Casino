@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 public interface ITransactionRequest {
 
     Long getId();
-    UserEntity getUser();
+    Long getUserId();
     String getInvoicingParty();
 
     BigDecimal getAmount();

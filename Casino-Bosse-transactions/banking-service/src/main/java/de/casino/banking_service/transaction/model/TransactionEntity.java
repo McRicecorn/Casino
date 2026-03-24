@@ -21,19 +21,19 @@ public class TransactionEntity implements ITransactionEntity {
     private String invoicingParty;
 
     @ManyToOne(optional = false)
-    private UserEntity user;
+    private Long userId;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    private TransactionEntity(BigDecimal amount, String invoicingParty, UserEntity user) {
+    private TransactionEntity(BigDecimal amount, String invoicingParty, Long userId) {
     this.amount = amount;
     this.invoicingParty = invoicingParty;
-    this.user= user;
+    this.userId = userId;
     }
 
-    public static Result <ITransactionEntity, ErrorWrapper> create(BigDecimal amount, String invoicingParty, UserEntity user){
-        var requested = new TransactionEntity(amount, invoicingParty, user);
+    public static Result <ITransactionEntity, ErrorWrapper> create(BigDecimal amount, String invoicingParty, long userId){
+        var requested = new TransactionEntity(amount, invoicingParty, userId);
         var isamountGreaterthanZero = requested.isamountGreaterthanZero();
 
         if (isamountGreaterthanZero.isFailure()){
@@ -59,13 +59,8 @@ public class TransactionEntity implements ITransactionEntity {
     }
 
 
-
-    public UserEntity getUser() {
-        return user;
-    }
-
     public Long getUserId(){
-        return user.getId();
+        return userId;
     }
 
     @Override
@@ -88,14 +83,8 @@ public class TransactionEntity implements ITransactionEntity {
     }
 
     @Override
-    public ErrorResult<ErrorWrapper> setUser(UserEntity user) {
-     /*   var userexists = UserRepository.findbyId(user.getId());
-        if (userexists.isempty){
-            return ErrorResult.failure();
-        }
-
-      */
-        this.user=user;
+    public ErrorResult<ErrorWrapper> setUserId(Long userId) {
+        this.userId=userId;
         return ErrorResult.success();
     }
 

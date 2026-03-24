@@ -1,29 +1,27 @@
 package de.casino.banking_service.transaction.controller;
 
 import de.casino.banking_service.transaction.handler.ITransactionHandler;
-import de.casino.banking_service.transaction.handler.TransactionHandler;
-import de.casino.banking_service.transaction.model.TransactionEntity;
 import de.casino.banking_service.transaction.request.TransactionRequest;
 import de.casino.banking_service.transaction.response.TransactionResponse;
+import de.casino.banking_service.user.handler.UserHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/casino/bank/api")
+@Tag(name = "Circle Management", description = "APIs for managing Trasnaction of users")
 public class TransactionController {
 
     private final ITransactionHandler transactionHandler;
-
     @Autowired
-    public TransactionController(TransactionHandler transactionHandler) {
+    public TransactionController(ITransactionHandler transactionHandler, UserHandler userHandler) {
         this.transactionHandler= transactionHandler;
     }
 
@@ -50,13 +48,14 @@ public class TransactionController {
            @ApiResponse(responseCode = "404", description = "User not found.", content = @Content)
    })
    @GetMapping("/transactions/user/{id}")
-   public ResponseEntity<?> getTransactionbyUserId(@PathVariable Long id){
+   public ResponseEntity<?> getTransactionsbyUserId(@PathVariable Long id){
+
         var result = transactionHandler.findByUserId(id);
 
-        if (1==1)
+        if (result.isSuccess())
         return ResponseEntity.ok(transactionHandler.findByUserId(id));
         else
-            return null;
+            return ResponseEntity.status(result.getFailureData().get().getHttpStatus()).body(result.getFailureData().get().getMessage());
    }
 
    @Operation (summary ="Delete Transaction by ID", description = "Removes a transaction from the Database using its identifier")
@@ -84,9 +83,9 @@ public class TransactionController {
     @ApiResponse(responseCode = "400", description = "Requested Transaction was faulty or missing"),
     @ApiResponse(responseCode = "404", description = "User was not found")
    })
-    @PostMapping("/transaction/user/{userId")
+    @PostMapping("/transaction/user/{userId}")
     public ResponseEntity<?> createTransactionEntity(@RequestBody TransactionRequest request, @PathVariable Long userId){
-        var result = transactionHandler.createTransactionEntity(request);
+        var result = transactionHandler.createTransactionEntity(request, userId);
         if (result.isSuccess()) {
 
             return ResponseEntity.ok(result.getSuccessData().get());

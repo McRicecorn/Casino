@@ -7,7 +7,8 @@ public enum ErrorWrapper {
           HttpStatus.BAD_REQUEST),
     TRANSACTION_WAS_NOT_FOUND("The requested Transaction was not found",
             HttpStatus.NOT_FOUND),
-    INVOICING_PARTY_DOES_NOT_EXIST("The given Invoicing Party does not exist",HttpStatus.NOT_FOUND);
+    INVOICING_PARTY_DOES_NOT_EXIST("The given Invoicing Party does not exist",HttpStatus.NOT_FOUND),
+    USER_WAS_NOT_FOUND("The given User could not be found", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final HttpStatus httpStatus;

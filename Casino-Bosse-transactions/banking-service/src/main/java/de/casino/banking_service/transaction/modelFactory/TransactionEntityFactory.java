@@ -13,7 +13,7 @@ public class TransactionEntityFactory implements ITransactionEntityFactory{
 
 
     @Override
-    public Result<ITransactionEntity, ErrorWrapper> create( BigDecimal amount, String invoicingParty, UserEntity user) {
-        return TransactionEntity.create(amount,invoicingParty,user);
+    public Result<ITransactionEntity, ErrorWrapper> create( BigDecimal amount, String invoicingParty, Long userId) {
+        return TransactionEntity.create(amount,invoicingParty,userId);
     }
 }

@@ -9,5 +9,5 @@ import de.casino.banking_service.user.model.UserEntity;
 import java.math.BigDecimal;
 
 public interface ITransactionEntityFactory {
-    Result<ITransactionEntity, ErrorWrapper> create ( BigDecimal amount, String invoicingParty, UserEntity user);
+    Result<ITransactionEntity, ErrorWrapper> create ( BigDecimal amount, String invoicingParty, Long userId);
 }

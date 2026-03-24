@@ -19,7 +19,7 @@ public class TransactionRequest implements ITransactionRequest {
     private BigDecimal amount;
 
     @Schema (description = "the unique identifier of a user ")
-    private UserEntity user;
+    private Long userId;
 
     @Schema (description = "the known invoincing Party")
     private String invcoingParty;
@@ -38,8 +38,8 @@ public class TransactionRequest implements ITransactionRequest {
     }
 
     @Override
-    public UserEntity getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
     @Override
