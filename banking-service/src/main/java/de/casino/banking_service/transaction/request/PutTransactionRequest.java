@@ -3,16 +3,14 @@ package de.casino.banking_service.transaction.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.casino.banking_service.transaction.utility.Games;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 
 @Schema(description = "Request to create or update a circle.")
-public class TransactionRequest implements ITransactionRequest {
+public class PutTransactionRequest implements ITransactionRequest {
 
-
-    @Schema(description = "the Unique identifier of a transaction")
-    private long id;
 
     @Schema
     private BigDecimal amount;
@@ -21,25 +19,23 @@ public class TransactionRequest implements ITransactionRequest {
     private Long userId;
 
     @Schema (description = "the known invoincing Party")
-    private String invoicingParty;
+    private Games invoicingParty;
 
 
     @JsonCreator
-    public TransactionRequest(@JsonProperty("amount") BigDecimal amount, @JsonProperty("invoicingParty") String invoicingParty){
+    public PutTransactionRequest(@JsonProperty("amount") BigDecimal amount, @JsonProperty("invoicingParty") Games invoicingParty, long userId){
         this.amount=amount;
         this.invoicingParty=invoicingParty;
+        this.userId = userId;
     }
 
 
-    public Long getId() {
-        return id;
-    }
 
     public Long getUserId() {
         return userId;
     }
 
-    public String getInvoicingParty() {
+    public Games getInvoicingParty() {
         return invoicingParty;
     }
 

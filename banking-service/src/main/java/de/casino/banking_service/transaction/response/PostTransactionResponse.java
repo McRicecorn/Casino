@@ -1,12 +1,15 @@
 package de.casino.banking_service.transaction.response;
 
 
+import de.casino.banking_service.transaction.utility.Games;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.math.BigDecimal;
 
 @Schema(description = "Response for a Transaction")
-public class TransactionResponse implements ITransactionResponse{
+public class PostTransactionResponse implements ITransactionResponse{
     @Schema(description = "the Unique identifier of a transaction")
     private long id;
 
@@ -17,32 +20,30 @@ public class TransactionResponse implements ITransactionResponse{
     private BigDecimal amount;
 
     @Schema (description = "the known invoincing Party")
-    private String invcoingParty;
+    @Enumerated(EnumType.STRING)
+    private Games invoicingParty;
 
-    public TransactionResponse(long id, long user_id, BigDecimal amount, String invoicingParty){
+    public PostTransactionResponse(long id, long user_id, BigDecimal amount, Games invoicingParty){
         this.id = id;
         this.userId = user_id;
         this.amount = amount;
-        this.invcoingParty = invoicingParty;
+        this.invoicingParty = invoicingParty;
     }
 
-    @Override
     public long getId() {
-        return 0;
+        return id;
     }
 
-    @Override
-    public long getuser_id() {
-        return 0;
+
+    public long getUserId() {
+        return userId;
     }
 
-    @Override
-    public BigDecimal getamount() {
-        return null;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
-    @Override
-    public String getInvoicingParty(){
-        return null;
+    public Games getInvoicingParty(){
+        return invoicingParty;
     };
 }

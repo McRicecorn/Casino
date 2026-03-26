@@ -1,18 +1,55 @@
 package de.casino.banking_service.transaction.responseFactory;
 
 import de.casino.banking_service.transaction.model.ITransactionEntity;
-import de.casino.banking_service.transaction.response.ITransactionResponse;
-import de.casino.banking_service.transaction.response.TransactionResponse;
+import de.casino.banking_service.transaction.response.*;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TransactionResponseFactory implements ITransactionResponseFactory {
 
     @Override
-    public ITransactionResponse create(ITransactionEntity transactionEntity) {
-    return new TransactionResponse(transactionEntity.getId(),transactionEntity.getUserId(), transactionEntity.getAmount(), transactionEntity.getInvoicingParty());
-}
+    public ITransactionResponse createGetAll(ITransactionEntity t) {
+        return new GetAllTransactionResponse(
+                t.getTransactionId(),
+                t.getUserId(),
+                t.getAmount()
+        );
+    }
 
+    @Override
+    public ITransactionResponse createGetByUser(ITransactionEntity t) {
+        return new GetUserTransactionResponse(
+                t.getTransactionId(),
+                t.getAmount()
+        );
+    }
 
+    @Override
+    public ITransactionResponse createPost(ITransactionEntity t) {
+        return new PostTransactionResponse(
+                t.getTransactionId(),
+                t.getUserId(),
+                t.getAmount(),
+                t.getInvoicingParty()
+        );
+    }
 
+    @Override
+    public ITransactionResponse createPut(ITransactionEntity t) {
+        return new PutTransactionResponse(
+                t.getTransactionId(),
+                t.getUserId(),
+                t.getAmount(),
+                t.getInvoicingParty()
+        );
+    }
+
+    @Override
+    public ITransactionResponse createDelete(ITransactionEntity t) {
+        return new DeleteTransactionResponse(
+                t.getUserId(),
+                t.getAmount(),
+                t.getInvoicingParty()
+        );
+    }
 }

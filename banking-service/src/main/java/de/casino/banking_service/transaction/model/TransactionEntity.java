@@ -3,9 +3,13 @@ package de.casino.banking_service.transaction.model;
 import de.casino.banking_service.transaction.utility.ErrorResult;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
 import de.casino.banking_service.transaction.utility.Result;
+import de.casino.banking_service.transaction.utility.Games;
+import de.casino.banking_service.user.model.UserEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+
+import static de.casino.banking_service.transaction.utility.Games.ROULETTE;
 
 @Entity
 @Table(name = "transactions")
@@ -13,79 +17,111 @@ public class TransactionEntity implements ITransactionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long transactionId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String invoicingParty;
+    private Games invoicingParty;
 
     @ManyToOne(optional = false)
-    private Long userId;
+    @JoinColumn(name = "user_id", nullable = false) //foreign key in der transactionstabelle, verweist auf die usertabelle
+    private UserEntity user;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    private TransactionEntity(BigDecimal amount, String invoicingParty, Long userId) {
+    private TransactionEntity(BigDecimal amount, Games invoicingParty, UserEntity user) {
     this.amount = amount;
     this.invoicingParty = invoicingParty;
-    this.userId = userId;
+    this.user = user;
     }
+    public TransactionEntity() {
 
-    public static Result <ITransactionEntity, ErrorWrapper> create(BigDecimal amount, String invoicingParty, long userId){
-        var requested = new TransactionEntity(amount, invoicingParty, userId);
-        var isamountGreaterthanZero = requested.isamountGreaterthanZero();
+    }
+    public static Result <ITransactionEntity, ErrorWrapper> create(BigDecimal amount, Games invoicingParty, UserEntity user){
 
-        if (isamountGreaterthanZero.isFailure()){
-            return Result.failure(isamountGreaterthanZero.getFailureData().orElse(ErrorWrapper.AMOUNT_WAS_NEGATIVE_OR_NULL));
+        var requested = new TransactionEntity(amount, invoicingParty, user);
+
+        var isInvoicingPartyValid = requested.validateInvoicingParty(invoicingParty);
+        if (isInvoicingPartyValid.isFailure()){
+            return Result.failure(isInvoicingPartyValid.getFailureData().get());
         }
-        else
-        return Result.success(requested);
+
+        var amountValidation = requested.validateAmount(amount);
+
+        if (amountValidation.isFailure()){
+            return Result.failure(amountValidation.getFailureData().get());
+        }
+
+            return Result.success(requested);
+
     }
 
-    private ErrorResult<ErrorWrapper> isamountGreaterthanZero(){
-            if (amount.compareTo(BigDecimal.ZERO) < 0) {
-                return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_NEGATIVE_OR_NULL);
-            }
-            return ErrorResult.success();
+
+
+    public ErrorResult<ErrorWrapper> update(
+            BigDecimal amount,
+            Games invoicingParty,
+            UserEntity user
+    ) {
+        var amountValidation = validateAmount(amount);
+        if (amountValidation.isFailure()) {
+            return amountValidation;
+        }
+
+        var invoicingValidation = validateInvoicingParty(invoicingParty);
+        if (invoicingValidation.isFailure()) {
+            return invoicingValidation;
+        }
+
+        this.amount = amount;
+        this.invoicingParty = invoicingParty;
+        this.user = user;
+
+        return ErrorResult.success();
     }
 
-    public Long getId() {
-        return id;
+    private ErrorResult<ErrorWrapper> validateAmount(BigDecimal amount) {
+        if (amount == null) {
+            return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_NULL);
+        }
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_NEGATIVE);
+        }
+        if (amount.compareTo(BigDecimal.ZERO) == 0) {
+            return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_ZERO);
+        }
+
+        if (amount.scale() > 2) {
+            return ErrorResult.failure(ErrorWrapper.AMOUNT_HAS_TOO_MANY_DECIMAL_PLACES);
+        }
+
+        return ErrorResult.success();
+    }
+    private ErrorResult<ErrorWrapper> validateInvoicingParty(Games invoicingParty) {
+        if (invoicingParty == null) {
+            return ErrorResult.failure(ErrorWrapper.INVOICING_PARTY_DOES_NOT_EXIST);
+        }
+        return ErrorResult.success();
     }
 
-    public String getInvoicingParty() {
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+
+    public Games getInvoicingParty() {
         return invoicingParty;
     }
 
 
     public Long getUserId(){
-        return userId;
+        return user.getId();
     }
 
-    @Override
-    public ErrorResult<ErrorWrapper> setAmount(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_NEGATIVE_OR_NULL);
-        }
-        else
-            return ErrorResult.success();
+    public UserEntity getUser(){
+        return user;
     }
-
-    @Override
-    public ErrorResult<ErrorWrapper> setInvoicingParty(String invoicingParty) {
-        if (invoicingParty.equals("Roulette")||invoicingParty.equals("Slotmaschine")) {
-            this.invoicingParty = invoicingParty;
-            return ErrorResult.success();
-        }
-        else
-            return ErrorResult.failure(ErrorWrapper.INVOICING_PARTY_DOES_NOT_EXIST);
-    }
-
-    @Override
-    public ErrorResult<ErrorWrapper> setUserId(Long userId) {
-        this.userId=userId;
-        return ErrorResult.success();
-    }
-
 
     public BigDecimal getAmount() {
         return amount;

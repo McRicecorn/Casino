@@ -3,8 +3,15 @@ package de.casino.banking_service.transaction.utility;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorWrapper {
-    AMOUNT_WAS_NEGATIVE_OR_NULL("Send payment was less than zero or zero.",
+    AMOUNT_WAS_NULL("The given amount is null",
           HttpStatus.BAD_REQUEST),
+    AMOUNT_WAS_NEGATIVE("The given amount is negative",
+            HttpStatus.BAD_REQUEST),
+    AMOUNT_HAS_TOO_MANY_DECIMAL_PLACES("The given amount has more than 2 decimal places",
+            HttpStatus.BAD_REQUEST),
+    AMOUNT_WAS_ZERO("The given amount is zero",
+            HttpStatus.BAD_REQUEST),
+
     TRANSACTION_WAS_NOT_FOUND("The requested Transaction was not found",
             HttpStatus.NOT_FOUND),
     INVOICING_PARTY_DOES_NOT_EXIST("The given Invoicing Party does not exist",HttpStatus.NOT_FOUND),
