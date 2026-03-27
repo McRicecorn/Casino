@@ -11,6 +11,9 @@ import java.math.BigDecimal;
 
 import static de.casino.banking_service.transaction.utility.Games.ROULETTE;
 
+
+
+//noch was machen, wenn BigDecimal 02.00 oder so ist. zählt es als 2 oder als fehler?
 @Entity
 @Table(name = "transactions")
 public class TransactionEntity implements ITransactionEntity {
@@ -61,8 +64,8 @@ public class TransactionEntity implements ITransactionEntity {
 
     public ErrorResult<ErrorWrapper> update(
             BigDecimal amount,
-            Games invoicingParty,
-            UserEntity user
+            Games invoicingParty
+
     ) {
         var amountValidation = validateAmount(amount);
         if (amountValidation.isFailure()) {
@@ -76,7 +79,7 @@ public class TransactionEntity implements ITransactionEntity {
 
         this.amount = amount;
         this.invoicingParty = invoicingParty;
-        this.user = user;
+
 
         return ErrorResult.success();
     }
@@ -84,9 +87,6 @@ public class TransactionEntity implements ITransactionEntity {
     private ErrorResult<ErrorWrapper> validateAmount(BigDecimal amount) {
         if (amount == null) {
             return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_NULL);
-        }
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_NEGATIVE);
         }
         if (amount.compareTo(BigDecimal.ZERO) == 0) {
             return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_ZERO);
