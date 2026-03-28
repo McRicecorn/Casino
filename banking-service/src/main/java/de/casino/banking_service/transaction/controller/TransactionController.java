@@ -3,15 +3,7 @@ package de.casino.banking_service.transaction.controller;
 import de.casino.banking_service.transaction.handler.ITransactionHandler;
 import de.casino.banking_service.transaction.request.PostTransactionRequest;
 import de.casino.banking_service.transaction.request.PutTransactionRequest;
-import de.casino.banking_service.transaction.request.TransactionRequest;
-import de.casino.banking_service.transaction.response.PostTransactionResponse;
-import de.casino.banking_service.user.handler.UserHandler;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
