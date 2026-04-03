@@ -82,10 +82,6 @@ Roulette-Service: http://localhost:8081/swagger-ui.html
 
 Slotmachine-Service: http://localhost:8082/swagger-ui.html
 
-Wichtige Hinweise:
-Alle IDs werden als long verarbeitet.
-
-Geldbeträge werden präzise als BigDecimal abgebildet.
 
 ⚖️ Lizenz
 Dieses Werk ist lizenziert unter einer Creative Commons Namensnennung 4.0 International Lizenz (CC BY 4.0).
@@ -93,4 +89,6 @@ Dieses Werk ist lizenziert unter einer Creative Commons Namensnennung 4.0 Intern
 Weitere Informationen finden Sie unter: http://creativecommons.org/licenses/by/4.0/
 
 👥 Autoren
-[Dein Name / Deine Gruppe]
+Catharina Hoppensack, Matr.-Nr.: 594129
+Duc....
+Elias....
