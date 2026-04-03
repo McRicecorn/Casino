@@ -7,5 +7,7 @@ WORKDIR /app
 # 3. Die fertige Programmdatei (JAR) in den Container kopieren
 COPY target/*.jar app.jar
 
+EXPOSE 8082
+
 # 4. Befehl zum Starten der Anwendung
 ENTRYPOINT ["java", "-jar", "app.jar"]

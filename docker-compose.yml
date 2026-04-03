@@ -1,37 +1,75 @@
 services:
-  app:
+  # --- SLOTMACHINE ---
+  slotmachine-service:
     build:
-      context: .
+      context: ./slotmachine-service
       dockerfile: Dockerfile
+    container_name: slotmachine-app
     ports:
       - "8082:8082"
     depends_on:
-      - db-service
+      - slotmachine-db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db-service:5432/slotmachine_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://slotmachine-db:5432/slotmachine_db
       SPRING_DATASOURCE_USERNAME: slotmachine
       SPRING_DATASOURCE_PASSWORD: passwort
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     networks:
-      - mvc_network
+      - casino_network
 
-  db-service:
-    image: postgres:15
+  slotmachine-db:
+    image: postgres:16
     container_name: slotmachine-db
     restart: always
     ports:
-      - "5433:5432"
+      - "5433:5432" # Host-Port 5433
     environment:
       POSTGRES_DB: slotmachine_db
       POSTGRES_USER: slotmachine
       POSTGRES_PASSWORD: passwort
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - slotmachine_data:/var/lib/postgresql/data
     networks:
-      - mvc_network
+      - casino_network
+
+  # --- ROULETTE ---
+  roulette-service:
+    build:
+      context: ./roulette-service
+      dockerfile: Dockerfile
+    container_name: roulette-app
+    ports:
+      - "8081:8081"
+    depends_on:
+      - roulette-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://roulette-db:5432/roulette_db
+      SPRING_DATASOURCE_USERNAME: roulette
+      SPRING_DATASOURCE_PASSWORD: passwort
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - casino_network
+
+  roulette-db:
+    image: postgres:16
+    container_name: roulette-db
+    environment:
+      POSTGRES_DB: roulette_db
+      POSTGRES_USER: roulette
+      POSTGRES_PASSWORD: passwort
+    ports:
+      - "5434:5432"
+    volumes:
+      - roulette_data:/var/lib/postgresql/data
+    networks:
+      - casino_network
+
+  # --- BANKING ---
+  # Hier analog zu oben hinzufügen
 
 networks:
-  mvc_network:
+  casino_network:
 
 volumes:
-  postgres_data:
+  slotmachine_data:
+  roulette_data:

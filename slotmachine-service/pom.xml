@@ -9,6 +9,7 @@
 </parent>
 
 <artifactId>slotmachine-service</artifactId>
+	<name>Slotmachine Service</name>
 
 <dependencies>
 <dependency>
