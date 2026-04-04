@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 public class PostTransactionRequest implements ITransactionRequest {
 
     @Schema
-    private BigDecimal amount;
+    private final BigDecimal amount;
 
 
 
     @Schema (description = "the known invoincing Party")
-    private Games invoicingParty;
+    private final Games invoicingParty;
 
 
     @JsonCreator

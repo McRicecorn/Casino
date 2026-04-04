@@ -1,20 +1,22 @@
 package de.casino.banking_service.transaction.handler;
 
+import de.casino.banking_service.transaction.UserClient.IUserClient;
 import de.casino.banking_service.transaction.model.TransactionEntity;
 import de.casino.banking_service.transaction.modelFactory.ITransactionEntityFactory;
 import de.casino.banking_service.transaction.repository.ITransactionRepository;
 import de.casino.banking_service.transaction.request.ITransactionRequest;
 import de.casino.banking_service.transaction.request.PostTransactionRequest;
 import de.casino.banking_service.transaction.request.PutTransactionRequest;
-import de.casino.banking_service.transaction.response.ITransactionResponse;
+import de.casino.banking_service.transaction.response.transactionResponse.ITransactionResponse;
+import de.casino.banking_service.transaction.response.userResponse.GetUserClientResponse;
 import de.casino.banking_service.transaction.responseFactory.ITransactionResponseFactory;
 import de.casino.banking_service.transaction.utility.ErrorResult;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
 import de.casino.banking_service.transaction.utility.Games;
 import de.casino.banking_service.transaction.utility.Result;
-import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.IUserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +44,7 @@ class TransactionHandlerTest {
     private ITransactionEntityFactory transactionEntityFactory;
 
     @Mock
-    private IUserRepository userRepository;
+    private IUserClient userClient;
 
     @Mock
     private ITransactionResponseFactory transactionResponseFactory;
@@ -55,6 +57,12 @@ class TransactionHandlerTest {
 
     @InjectMocks
     private TransactionHandler transactionHandler;
+
+    private GetUserClientResponse mockUser(Long id) {
+        GetUserClientResponse user = mock(GetUserClientResponse.class);
+        when(user.getId()).thenReturn(id);
+        return user;
+    }
 
 
 
@@ -158,25 +166,36 @@ class TransactionHandlerTest {
     @Nested
     class createTransactionTests{
 
+        private PostTransactionRequest request;
+        private GetUserClientResponse userDto;
+        private TransactionEntity entity;
+        private ITransactionResponse response;
+
+        private final long userId = 1L;
+        private final BigDecimal amount = new BigDecimal("10.00");
+
+
 
         @Test
         void createTransaction_valid_shouldSucceed() {
-            long userId = 1L;
+            request = mock(PostTransactionRequest.class);
+            userDto = mockUser(userId);
+            entity = mock(TransactionEntity.class);
+            response = mock(ITransactionResponse.class);
 
-            PostTransactionRequest request = mock(PostTransactionRequest.class);
-            UserEntity user = mock(UserEntity.class);
-            TransactionEntity entity = mock(TransactionEntity.class);
-            ITransactionResponse response = mock(ITransactionResponse.class);
-
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-            when(request.getAmount()).thenReturn(new BigDecimal("10.00"));
+            when(request.getAmount()).thenReturn(amount);
             when(request.getInvoicingParty()).thenReturn(Games.ROULETTE);
+            when(userClient.getUserById(userId))
+                    .thenReturn(Result.success(userDto));
 
-            when(transactionEntityFactory.create(any(), any(), any()))
+            when(userClient.deposit(userId, amount))
+                    .thenReturn(Result.success(null));
+
+            when(transactionEntityFactory.create(amount, Games.ROULETTE, userId))
                     .thenReturn(Result.success(entity));
 
-            when(transactionResponseFactory.createPost(entity)).thenReturn(response);
+            when(transactionResponseFactory.createPost(entity))
+                    .thenReturn(response);
 
             var result = transactionHandler.createTransaction(request, userId);
 
@@ -186,17 +205,18 @@ class TransactionHandlerTest {
             verify(transactionRepository).save(entity);
         }
 
+
         @Test
         void createTransaction_userNotFound_shouldFail() {
-            long userId = 1L;
-            PostTransactionRequest request = mock(PostTransactionRequest.class);
 
-            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+            when(userClient.getUserById(userId))
+                    .thenReturn(Result.failure(ErrorWrapper.USER_WAS_NOT_FOUND));
 
             var result = transactionHandler.createTransaction(request, userId);
 
             assertTrue(result.isFailure());
-            assertEquals(ErrorWrapper.USER_WAS_NOT_FOUND, result.getFailureData().get());
+            assertEquals(ErrorWrapper.USER_WAS_NOT_FOUND,
+                    result.getFailureData().get());
 
             verify(transactionRepository, never()).save(any());
         }
@@ -206,14 +226,18 @@ class TransactionHandlerTest {
             long userId = 1L;
 
             PostTransactionRequest request = mock(PostTransactionRequest.class);
-            UserEntity user = mock(UserEntity.class);
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            GetUserClientResponse userDto = mock(GetUserClientResponse.class);
+
+            when(userDto.getId()).thenReturn(userId);
+
+            when(userClient.getUserById(userId))
+                    .thenReturn(Result.success(userDto));
 
             when(request.getAmount()).thenReturn(new BigDecimal("10.00"));
             when(request.getInvoicingParty()).thenReturn(Games.ROULETTE);
 
-            when(transactionEntityFactory.create(any(), any(), any()))
+            when(transactionEntityFactory.create(any(BigDecimal.class), any(Games.class), anyLong()))
                     .thenReturn(Result.failure(ErrorWrapper.AMOUNT_WAS_NULL));
 
             var result = transactionHandler.createTransaction(request, userId);
@@ -230,30 +254,40 @@ class TransactionHandlerTest {
     @Nested
     class updateTransactionTests{
 
+
+
+
+
         @Test
         void updateTransaction_valid_shouldSucceed() {
             long transactionId = 1L;
+            long userId = 99L;
+            BigDecimal oldAmount = new BigDecimal("10.00");
+            BigDecimal newAmount = new BigDecimal("20.00");
+            BigDecimal difference = newAmount.subtract(oldAmount); // 10.00
 
+            GetUserClientResponse userDto = mock(GetUserClientResponse.class);
             PutTransactionRequest request = mock(PutTransactionRequest.class);
             TransactionEntity entity = mock(TransactionEntity.class);
-            UserEntity user = mock(UserEntity.class);
-            ITransactionResponse response = mock(ITransactionResponse.class);
 
             when(transactionRepository.findById(transactionId))
                     .thenReturn(Optional.of(entity));
 
-            when(request.getUserId()).thenReturn(1L);
-            when(userRepository.findById(1L))
-                    .thenReturn(Optional.of(user));
+            when(request.getUserId()).thenReturn(userId);
+            when(request.getAmount()).thenReturn(newAmount);
+            when(request.getInvoicingParty()).thenReturn(Games.ROULETTE);
 
-            when(request.getAmount()).thenReturn(new BigDecimal("20.00"));
-            when(request.getInvoicingParty()).thenReturn(Games.SLOTS);
+            when(entity.getAmount()).thenReturn(oldAmount);
 
-            when(entity.update(any(), any()))
-                    .thenReturn(ErrorResult.success());
+            when(userClient.getUserById(userId))
+                    .thenReturn(Result.success(userDto));
+            when(userClient.withdraw(userId, difference))
+                    .thenReturn(Result.success(null));
 
-            when(transactionResponseFactory.createPut(entity))
-                    .thenReturn(response);
+            doReturn(ErrorResult.success()).when(entity).update(newAmount, Games.ROULETTE);
+
+            ITransactionResponse response = mock(ITransactionResponse.class);
+            when(transactionResponseFactory.createPut(entity)).thenReturn(response);
 
             var result = transactionHandler.updateTransaction(transactionId, request);
 
@@ -261,22 +295,41 @@ class TransactionHandlerTest {
             assertEquals(response, result.getSuccessData().get());
 
             verify(transactionRepository).save(entity);
+            verify(userClient).withdraw(userId, difference);
+            verify(entity).update(newAmount, Games.ROULETTE);
         }
+        @Test
+        void updateTransaction_transactionNotFound_shouldFail() {
+            long transactionId = 1L;
+            PutTransactionRequest request = mock(PutTransactionRequest.class);
 
+            when(transactionRepository.findById(transactionId))
+                    .thenReturn(Optional.empty());
+
+            var result = transactionHandler.updateTransaction(transactionId, request);
+
+            assertTrue(result.isFailure());
+            assertEquals(ErrorWrapper.TRANSACTION_WAS_NOT_FOUND,
+                    result.getFailureData().get());
+
+            verify(transactionRepository, never()).save(any());
+        }
 
         @Test
         void updateTransaction_userNotFound_shouldFail() {
-            long transactionId = 1L;
 
+            long transactionId = 1L;
+            long userId = 99L;
             PutTransactionRequest request = mock(PutTransactionRequest.class);
             TransactionEntity entity = mock(TransactionEntity.class);
 
             when(transactionRepository.findById(transactionId))
                     .thenReturn(Optional.of(entity));
 
-            when(request.getUserId()).thenReturn(99L);
-            when(userRepository.findById(99L))
-                    .thenReturn(Optional.empty());
+            when(request.getUserId()).thenReturn(userId);
+
+            when(userClient.getUserById(userId))
+                    .thenReturn(Result.failure(ErrorWrapper.USER_WAS_NOT_FOUND));
 
             var result = transactionHandler.updateTransaction(transactionId, request);
 
@@ -287,46 +340,31 @@ class TransactionHandlerTest {
             verify(transactionRepository, never()).save(any());
         }
 
-        @Nested
-        class UpdateTransactionTests {
 
-            @Test
-            void updateTransaction_transactionNotFound_shouldFail() {
-                long transactionId = 1L;
-                PutTransactionRequest request = mock(PutTransactionRequest.class);
-
-                when(transactionRepository.findById(transactionId))
-                        .thenReturn(Optional.empty());
-
-                var result = transactionHandler.updateTransaction(transactionId, request);
-
-                assertTrue(result.isFailure());
-                assertEquals(ErrorWrapper.TRANSACTION_WAS_NOT_FOUND,
-                        result.getFailureData().get());
-
-                verify(transactionRepository, never()).save(any());
-            }
-        }
 
         @Test
-        void updateTransaction_validationFails_shouldReturnFailure() {
+        void updateTransaction_validationFails_shouldFail() {
+
             long transactionId = 1L;
+            long userId = 99L;
 
             PutTransactionRequest request = mock(PutTransactionRequest.class);
             TransactionEntity entity = mock(TransactionEntity.class);
-            UserEntity user = mock(UserEntity.class);
+            GetUserClientResponse userDto = mock(GetUserClientResponse.class);
 
             when(transactionRepository.findById(transactionId))
                     .thenReturn(Optional.of(entity));
 
-            when(request.getUserId()).thenReturn(1L);
-            when(userRepository.findById(1L))
-                    .thenReturn(Optional.of(user));
-
+            when(request.getUserId()).thenReturn(userId);
             when(request.getAmount()).thenReturn(new BigDecimal("0"));
             when(request.getInvoicingParty()).thenReturn(Games.ROULETTE);
 
-            when(entity.update(any(), any()))
+            when(entity.getAmount()).thenReturn(new BigDecimal("0"));
+
+            when(userClient.getUserById(userId))
+                    .thenReturn(Result.success(userDto));
+
+            when(entity.update(eq(new BigDecimal("0")), eq(Games.ROULETTE)))
                     .thenReturn(ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_ZERO));
 
             var result = transactionHandler.updateTransaction(transactionId, request);

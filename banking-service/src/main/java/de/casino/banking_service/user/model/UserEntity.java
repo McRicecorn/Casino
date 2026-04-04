@@ -84,6 +84,7 @@ public class UserEntity implements IUserEntity{
         if (amount.scale() > 2) {
             return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_AMOUNT_DECIMAL_PLACES);
         }
+
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             return ErrorResult.failure(ErrorWrapper.USER_MODEL_INVALID_AMOUNT_NEGATIVE);
         }

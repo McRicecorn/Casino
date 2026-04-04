@@ -18,7 +18,6 @@ public interface ITransactionEntity {
 
     ErrorResult<ErrorWrapper> update(BigDecimal amount, Games invoicingParty);
     Long getUserId();
-    UserEntity getUser();
 
 
 

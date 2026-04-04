@@ -16,7 +16,7 @@ public class TransactionEntityFactory implements ITransactionEntityFactory{
 
 
     @Override
-    public Result<ITransactionEntity, ErrorWrapper> create(BigDecimal amount, Games invoicingParty, UserEntity userId) {
+    public Result<ITransactionEntity, ErrorWrapper> create(BigDecimal amount, Games invoicingParty, long userId) {
         return TransactionEntity.create(amount,invoicingParty,userId);
     }
 }

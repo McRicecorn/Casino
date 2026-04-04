@@ -1,4 +1,4 @@
-package de.casino.banking_service.transaction.response;
+package de.casino.banking_service.transaction.response.transactionResponse;
 
 
 import de.casino.banking_service.transaction.utility.Games;
@@ -37,6 +37,6 @@ public class DeleteTransactionResponse implements ITransactionResponse{
     }
 
     public Games getInvoicingParty(){
-        return getInvoicingParty();
+        return invoicingParty;
     };
 }

@@ -1,7 +1,7 @@
 package de.casino.banking_service.transaction.responseFactory;
 
 import de.casino.banking_service.transaction.model.ITransactionEntity;
-import de.casino.banking_service.transaction.response.ITransactionResponse;
+import de.casino.banking_service.transaction.response.transactionResponse.ITransactionResponse;
 
 public interface ITransactionResponseFactory {
 

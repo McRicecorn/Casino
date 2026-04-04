@@ -171,10 +171,10 @@ class UserEntityTest {
         @Test
         void deposit_validAmount_shouldSucceed() {
 
-            var result = user.deposit(new BigDecimal("100.00"));
+            var result = user.deposit(new BigDecimal("600.00"));
 
             assertTrue(result.isSuccess());
-            assertEquals(new BigDecimal("100.00"), user.getBalance());
+            assertEquals(new BigDecimal("600.00"), user.getBalance());
         }
 
         @Test

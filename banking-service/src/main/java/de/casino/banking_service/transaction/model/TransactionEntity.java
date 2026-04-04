@@ -13,7 +13,8 @@ import static de.casino.banking_service.transaction.utility.Games.ROULETTE;
 
 
 
-//noch was machen, wenn BigDecimal 02.00 oder so ist. zählt es als 2 oder als fehler?
+//Todo: Balance bei Update ändern
+//bei delete auch Balance ändern?
 @Entity
 @Table(name = "transactions")
 public class TransactionEntity implements ITransactionEntity {
@@ -26,35 +27,33 @@ public class TransactionEntity implements ITransactionEntity {
     @Column(nullable = false)
     private Games invoicingParty;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false) //foreign key in der transactionstabelle, verweist auf die usertabelle
-    private UserEntity user;
+    @Column(nullable = false)
+    private Long userId;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    private TransactionEntity(BigDecimal amount, Games invoicingParty, UserEntity user) {
+    private TransactionEntity(BigDecimal amount, Games invoicingParty, long user) {
     this.amount = amount;
     this.invoicingParty = invoicingParty;
-    this.user = user;
+    this.userId = user;
     }
     public TransactionEntity() {
 
     }
-    public static Result <ITransactionEntity, ErrorWrapper> create(BigDecimal amount, Games invoicingParty, UserEntity user){
-
-        var requested = new TransactionEntity(amount, invoicingParty, user);
-
-        var isInvoicingPartyValid = requested.validateInvoicingParty(invoicingParty);
-        if (isInvoicingPartyValid.isFailure()){
+    public static Result <ITransactionEntity, ErrorWrapper> create(BigDecimal amount, Games invoicingParty, long user){
+        var isInvoicingPartyValid = validateInvoicingParty(invoicingParty);
+        if (isInvoicingPartyValid.isFailure()) {
             return Result.failure(isInvoicingPartyValid.getFailureData().get());
         }
 
-        var amountValidation = requested.validateAmount(amount);
-
-        if (amountValidation.isFailure()){
+        var amountValidation = validateAmount(amount);
+        if (amountValidation.isFailure()) {
             return Result.failure(amountValidation.getFailureData().get());
         }
+        var requested = new TransactionEntity(amount, invoicingParty, user);
+
+
 
             return Result.success(requested);
 
@@ -84,7 +83,7 @@ public class TransactionEntity implements ITransactionEntity {
         return ErrorResult.success();
     }
 
-    private ErrorResult<ErrorWrapper> validateAmount(BigDecimal amount) {
+    private static ErrorResult<ErrorWrapper> validateAmount(BigDecimal amount) {
         if (amount == null) {
             return ErrorResult.failure(ErrorWrapper.AMOUNT_WAS_NULL);
         }
@@ -98,7 +97,7 @@ public class TransactionEntity implements ITransactionEntity {
 
         return ErrorResult.success();
     }
-    private ErrorResult<ErrorWrapper> validateInvoicingParty(Games invoicingParty) {
+    private static ErrorResult<ErrorWrapper> validateInvoicingParty(Games invoicingParty) {
         if (invoicingParty == null) {
             return ErrorResult.failure(ErrorWrapper.INVOICING_PARTY_DOES_NOT_EXIST);
         }
@@ -116,12 +115,9 @@ public class TransactionEntity implements ITransactionEntity {
 
 
     public Long getUserId(){
-        return user.getId();
+        return userId;
     }
 
-    public UserEntity getUser(){
-        return user;
-    }
 
     public BigDecimal getAmount() {
         return amount;

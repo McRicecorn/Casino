@@ -1,5 +1,6 @@
 package de.casino.banking_service.transaction.handler;
 
+import de.casino.banking_service.transaction.UserClient.IUserClient;
 import de.casino.banking_service.transaction.model.ITransactionEntity;
 import de.casino.banking_service.transaction.model.TransactionEntity;
 import de.casino.banking_service.transaction.modelFactory.ITransactionEntityFactory;
@@ -7,17 +8,17 @@ import de.casino.banking_service.transaction.repository.ITransactionRepository;
 
 import de.casino.banking_service.transaction.request.PostTransactionRequest;
 import de.casino.banking_service.transaction.request.PutTransactionRequest;
-import de.casino.banking_service.transaction.response.ITransactionResponse;
+import de.casino.banking_service.transaction.response.transactionResponse.ITransactionResponse;
 import de.casino.banking_service.transaction.responseFactory.ITransactionResponseFactory;
 
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
 import de.casino.banking_service.transaction.utility.Result;
 
-import de.casino.banking_service.user.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 @Service
@@ -28,7 +29,7 @@ public class TransactionHandler implements ITransactionHandler {
 
     private final ITransactionEntityFactory transactionEntityFactory;
 
-    private final IUserRepository userRepository;
+    private final IUserClient userClient;
 
 
 
@@ -36,12 +37,11 @@ public class TransactionHandler implements ITransactionHandler {
     public TransactionHandler(ITransactionRepository transactionRepository,
                               ITransactionResponseFactory responseFactory,
                               ITransactionEntityFactory transactionEntityFactory,
-                              IUserRepository userRepository){
+                              IUserClient userClient){
         this.transactionRepository =transactionRepository;
         this.transactionResponseFactory= responseFactory;
         this.transactionEntityFactory= transactionEntityFactory;
-        this.userRepository= userRepository;
-
+        this.userClient = userClient;
     }
 
     private Result<TransactionEntity, ErrorWrapper> findTransactionById(Long id){
@@ -76,22 +76,41 @@ public class TransactionHandler implements ITransactionHandler {
 
 
     public Result<ITransactionResponse, ErrorWrapper> createTransaction(PostTransactionRequest transactionRequest, long userId){
-        var user = userRepository.findById(userId);
-        if (user.isEmpty()){
-            return Result.failure(ErrorWrapper.USER_WAS_NOT_FOUND);
+        var userResult = userClient.getUserById(userId);
+        if (userResult.isFailure()) {
+            return Result.failure(userResult.getFailureData().get());
         }
 
-         var transactionEntity = transactionEntityFactory.create(transactionRequest.getAmount(), transactionRequest.getInvoicingParty(), user.get());
+        var userDto = userResult.getSuccessData().get();
 
-            if (transactionEntity.isFailure()){
-                return Result.failure(transactionEntity.getFailureData().get());
-            }
+        var transactionEntity = transactionEntityFactory.create(
+                transactionRequest.getAmount(),
+                transactionRequest.getInvoicingParty(),
+                userDto.getId());
 
-            var entity= (TransactionEntity) transactionEntity.getSuccessData().get();
-            transactionRepository.save(entity);
+        if (transactionEntity.isFailure()){
+            return Result.failure(transactionEntity.getFailureData().get());
+        }
 
-            var response = transactionResponseFactory.createPost(transactionEntity.getSuccessData().get());
-            return Result.success(response);
+        var amount = transactionRequest.getAmount();
+        Result<Void, ErrorWrapper> moneyResult;
+
+        if (amount.compareTo(BigDecimal.ZERO) > 0) {
+            moneyResult = userClient.deposit(userId, amount);
+        } else {
+            moneyResult = userClient.withdraw(userId, amount.abs());
+        }
+
+        if (moneyResult.isFailure()) {
+            return Result.failure(moneyResult.getFailureData().get());
+        }
+
+
+        var entity= (TransactionEntity) transactionEntity.getSuccessData().get();
+        transactionRepository.save(entity);
+
+        var response = transactionResponseFactory.createPost(entity);
+        return Result.success(response);
 
     }
 
@@ -102,15 +121,35 @@ public class TransactionHandler implements ITransactionHandler {
             return Result.failure(target.getFailureData().get());
         }
 
-        var user = userRepository.findById(request.getUserId());
-        if (user.isEmpty()){
-            return Result.failure(ErrorWrapper.USER_WAS_NOT_FOUND);
-        }
-
         var transaction = target.getSuccessData().get();
 
+        var userResult = userClient.getUserById(request.getUserId());
+        if (userResult.isFailure()) {
+            return Result.failure(userResult.getFailureData().get());
+        }
+
+        var oldAmount = transaction.getAmount();
+        var newAmount = request.getAmount();
+        var difference = newAmount.subtract(oldAmount).abs();
+
+
+        Result<Void, ErrorWrapper> moneyResult;
+
+
+        if (oldAmount.compareTo(newAmount) > 0) {
+            moneyResult = userClient.withdraw(request.getUserId(), difference);
+        } else if (oldAmount.compareTo(newAmount) < 0) {
+            moneyResult = userClient.deposit(request.getUserId(), difference);
+        } else {
+            moneyResult = Result.success(null);
+        }
+
+        if (moneyResult.isFailure()) {
+            return Result.failure(moneyResult.getFailureData().get());
+        }
+
         var updateResult = transaction.update(
-                request.getAmount(),
+                newAmount,
                 request.getInvoicingParty()
         );
 
@@ -123,6 +162,8 @@ public class TransactionHandler implements ITransactionHandler {
         return Result.success(transactionResponseFactory.createPut(transaction));
     }
 
+    //todo: write test for money transfer
+    //possbily split the money transfer logic into a separate method to make it easier to test and reuse in both create and update methods
     public Result<ITransactionResponse, ErrorWrapper> deleteTransaction(Long id){
         var target = findTransactionById(id);
         if (target.isFailure()) {
@@ -130,11 +171,33 @@ public class TransactionHandler implements ITransactionHandler {
         }
         var transaction = target.getSuccessData().get();
 
+        var userResult = userClient.getUserById(transaction.getUserId());
+        if (userResult.isFailure()) {
+            return Result.failure(userResult.getFailureData().get());
+        }
+
+            var amount = transaction.getAmount();
+            var amountPositive = amount.abs();
+            Result<Void, ErrorWrapper> moneyResult;
+
+            if (amount.compareTo(BigDecimal.ZERO) > 0) {
+                moneyResult = userClient.withdraw(transaction.getUserId(), amountPositive);
+            } else {
+                moneyResult = userClient.deposit(transaction.getUserId(), amountPositive);
+            }
+
+            if (moneyResult.isFailure()) {
+                return Result.failure(moneyResult.getFailureData().get());
+            }
+
+
+
         transactionRepository.delete(transaction);
         var response = transactionResponseFactory.createDelete(transaction);
 
         return Result.success(response);
     }
 
+    //deleteAllTransactionsByUserId
 
 }

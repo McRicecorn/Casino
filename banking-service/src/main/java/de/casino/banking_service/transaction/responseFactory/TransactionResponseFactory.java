@@ -1,7 +1,7 @@
 package de.casino.banking_service.transaction.responseFactory;
 
 import de.casino.banking_service.transaction.model.ITransactionEntity;
-import de.casino.banking_service.transaction.response.*;
+import de.casino.banking_service.transaction.response.transactionResponse.*;
 import org.springframework.stereotype.Component;
 
 @Component

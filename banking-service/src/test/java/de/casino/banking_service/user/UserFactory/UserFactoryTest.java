@@ -5,7 +5,6 @@ import de.casino.banking_service.user.Utility.Result;
 import de.casino.banking_service.user.model.IUserEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -24,7 +23,7 @@ public class UserFactoryTest {
     private String randomFirstName;
     private String randomLastName;
 
-    private IUserEntity mockUser;
+
 
     @BeforeAll
     public static void setUpAll() {
@@ -41,7 +40,6 @@ public class UserFactoryTest {
         randomFirstName = "User" + rng.nextInt(10000);
         randomLastName = "Last" + rng.nextInt(10000);
 
-        mockUser = mock(IUserEntity.class);
     }
 
     @Test

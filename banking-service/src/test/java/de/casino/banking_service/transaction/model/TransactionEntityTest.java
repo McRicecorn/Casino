@@ -2,12 +2,11 @@ package de.casino.banking_service.transaction.model;
 
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
 import de.casino.banking_service.transaction.utility.Games;
-import de.casino.banking_service.user.model.IUserEntity;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import de.casino.banking_service.user.model.UserEntity;
 
 import java.math.BigDecimal;
 import java.util.Random;
@@ -17,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // Tests 
 class TransactionEntityTest {
-
+/*
     private static Random rng;
 
     private static double randomPositive;
@@ -29,6 +28,7 @@ class TransactionEntityTest {
     private static double heighestNegativeFraction;
     private static double lowestNegativeFraction;
 
+
     @BeforeAll
     public static void setUpAll() {
         rng = new Random();
@@ -39,14 +39,10 @@ class TransactionEntityTest {
         heighestNegativeFraction = -Double.MIN_VALUE;
         lowestNegativeFraction = -Double.MAX_VALUE;
     }
-
+*/
     private ITransactionEntity transaction;
 
-    private UserEntity createUser() {
-        return (UserEntity) UserEntity.create("Max", "Mustermann")
-                .getSuccessData()
-                .get();
-    }
+
 
     @Nested
     class CreateMethodTests{
@@ -54,19 +50,19 @@ class TransactionEntityTest {
 
         @Test
         public void create_validTransaction_shouldSucceed() {
-            var user = createUser();
+            long userId = 1L;
             var game = Games.ROULETTE;
             var amount = new BigDecimal("10.00");
 
-            var result = TransactionEntity.create(amount, game, user);
+            var result = TransactionEntity.create(amount, game, userId);
 
 
 
             assertTrue(result.isSuccess());
             assertEquals(amount, result.getSuccessData().get().getAmount());
             assertEquals(game, result.getSuccessData().get().getInvoicingParty() );
-            assertEquals(user, result.getSuccessData().get().getUser());
-            assertEquals(user.getId(), result.getSuccessData().get().getUserId());
+            assertEquals(userId, result.getSuccessData().get().getUserId());
+            assertEquals(userId, result.getSuccessData().get().getUserId());
 
         }
 
@@ -74,7 +70,7 @@ class TransactionEntityTest {
         @Test
         public void create_nullAmount_shouldFail() {
 
-            var user = createUser();
+            var user = 1L;
             var game = Games.ROULETTE;
             BigDecimal amount = null;
 
@@ -86,7 +82,7 @@ class TransactionEntityTest {
 
         @Test
         public void create_AmountZero_shouldFail() {
-            var user = createUser();
+            var user = 1L;
             var game = Games.ROULETTE;
             var amount = new BigDecimal("0");
 
@@ -98,7 +94,7 @@ class TransactionEntityTest {
 
         @Test
         public void create_TooManyDecimals_shouldFail(){
-            var user = createUser();
+            var user = 1L;
             var game = Games.ROULETTE;
             var amount = new BigDecimal("10.000");
 
@@ -110,7 +106,7 @@ class TransactionEntityTest {
 
         @Test
         public void create_InvoicePartyNull_shouldFail(){
-            var user = createUser();
+            var user = 1L;
             var amount = new BigDecimal("10.00");
 
             var result = TransactionEntity.create(amount, null, user);
@@ -129,7 +125,7 @@ class TransactionEntityTest {
 
         @BeforeEach
         void setUp() {
-            var oldUser = createUser();
+            var oldUser = 1L;
             var oldAmount = new BigDecimal("10.00");
             var oldGame = Games.ROULETTE;
             transaction = TransactionEntity.create(oldAmount, oldGame, oldUser).getSuccessData().get();

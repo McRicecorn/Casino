@@ -1,10 +1,8 @@
 package de.casino.banking_service.transaction.handler;
 
-import de.casino.banking_service.transaction.request.ITransactionRequest;
 import de.casino.banking_service.transaction.request.PostTransactionRequest;
 import de.casino.banking_service.transaction.request.PutTransactionRequest;
-import de.casino.banking_service.transaction.response.ITransactionResponse;
-import de.casino.banking_service.transaction.utility.ErrorResult;
+import de.casino.banking_service.transaction.response.transactionResponse.ITransactionResponse;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
 import de.casino.banking_service.transaction.utility.Result;
 

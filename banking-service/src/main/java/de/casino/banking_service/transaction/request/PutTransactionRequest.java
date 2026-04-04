@@ -18,7 +18,7 @@ public class PutTransactionRequest implements ITransactionRequest {
     @Schema (description = "the unique identifier of a user ")
     private Long userId;
 
-    @Schema (description = "the known invoincing Party")
+    @Schema (description = "the known invoicing Party")
     private Games invoicingParty;
 
 
