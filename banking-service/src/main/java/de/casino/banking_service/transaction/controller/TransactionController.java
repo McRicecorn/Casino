@@ -81,6 +81,19 @@ public class TransactionController {
 
     }
 
+    @DeleteMapping("/transactions/user/{userId}")
+    public ResponseEntity<?> deleteByUserId(@PathVariable Long userId) {
+
+        var result = transactionHandler.deleteTransactionsByUserId(userId);
+
+        if (result.isSuccess()) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity
+                    .status(result.getFailureData().get().getHttpStatus())
+                    .body(result.getFailureData().get().getMessage());
+        }
+    }
 
 }
 

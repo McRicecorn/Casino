@@ -8,10 +8,12 @@ import de.casino.banking_service.transaction.repository.ITransactionRepository;
 
 import de.casino.banking_service.transaction.request.PostTransactionRequest;
 import de.casino.banking_service.transaction.request.PutTransactionRequest;
+import de.casino.banking_service.transaction.response.transactionResponse.DeleteTransactionResponse;
 import de.casino.banking_service.transaction.response.transactionResponse.ITransactionResponse;
 import de.casino.banking_service.transaction.responseFactory.ITransactionResponseFactory;
 
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
+import de.casino.banking_service.transaction.utility.Games;
 import de.casino.banking_service.transaction.utility.Result;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TransactionHandler implements ITransactionHandler {
@@ -198,6 +201,31 @@ public class TransactionHandler implements ITransactionHandler {
         return Result.success(response);
     }
 
-    //deleteAllTransactionsByUserId
+    public Result<ITransactionResponse, ErrorWrapper> deleteTransactionsByUserId(Long userId) {
 
+        int numberDeleted = 0;
+        List<Games> games = new ArrayList<>();
+        BigDecimal totalAmountGained = BigDecimal.ZERO;
+        BigDecimal totalAmountLost = BigDecimal.ZERO;
+
+        var transactions = transactionRepository.findAllByUserId(userId);
+
+        for (ITransactionEntity transaction : transactions) {
+            var amount = transaction.getAmount();
+            if (amount.compareTo(BigDecimal.ZERO) > 0) {
+                totalAmountGained = totalAmountGained.add(amount);
+            } else {
+                totalAmountLost = totalAmountLost.add(amount.abs());
+            }
+            games.add(transaction.getInvoicingParty());
+            transactionRepository.delete((TransactionEntity) transaction);
+            numberDeleted++;
+        }
+
+        var response = transactionResponseFactory.createDeleteAll(numberDeleted, totalAmountLost, totalAmountGained, games);
+
+        return Result.success(response);
+
+
+    }
 }

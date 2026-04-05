@@ -2,7 +2,11 @@ package de.casino.banking_service.transaction.responseFactory;
 
 import de.casino.banking_service.transaction.model.ITransactionEntity;
 import de.casino.banking_service.transaction.response.transactionResponse.*;
+import de.casino.banking_service.transaction.utility.Games;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Component
 public class TransactionResponseFactory implements ITransactionResponseFactory {
@@ -50,6 +54,16 @@ public class TransactionResponseFactory implements ITransactionResponseFactory {
                 t.getUserId(),
                 t.getAmount(),
                 t.getInvoicingParty()
+        );
+    }
+
+    @Override
+    public ITransactionResponse createDeleteAll(int numberOfDeletedTransactions, BigDecimal totalAmountLost, BigDecimal totalAmountGained, List<Games> invoicingPartys) {
+        return new DeleteAllTransactionsResponse(
+                numberOfDeletedTransactions,
+                totalAmountLost,
+                totalAmountGained,
+                invoicingPartys
         );
     }
 }

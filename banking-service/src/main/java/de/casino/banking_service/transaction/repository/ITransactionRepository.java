@@ -10,4 +10,6 @@ import java.util.List;
 public interface ITransactionRepository extends JpaRepository<TransactionEntity, Long> {
 
     List<ITransactionEntity> findAllByUserId(long userId);
+    void deleteAllByUserId(Long userId); // 👈 NEU
+
 }

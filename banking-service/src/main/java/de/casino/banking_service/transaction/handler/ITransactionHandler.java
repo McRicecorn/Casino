@@ -13,6 +13,7 @@ public interface ITransactionHandler {
    Result<ITransactionResponse, ErrorWrapper> createTransaction(PostTransactionRequest request, long userId);
    Result<ITransactionResponse, ErrorWrapper> updateTransaction(Long id, PutTransactionRequest request);
    Result<ITransactionResponse, ErrorWrapper> deleteTransaction(Long id);
+   Result<ITransactionResponse, ErrorWrapper> deleteTransactionsByUserId(Long userId);
 
 
    }

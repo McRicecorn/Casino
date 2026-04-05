@@ -2,6 +2,7 @@ package de.casino.banking_service.user.handler;
 
 import de.casino.banking_service.user.Request.IUserRequest;
 import de.casino.banking_service.user.Response.IUserResponse;
+import de.casino.banking_service.user.TransactionClient.ITransactionClient;
 import de.casino.banking_service.user.UserFactory.IUserFactory;
 import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
@@ -22,12 +23,16 @@ public class UserHandler implements IUserHandler {
     private  final IUserRepository userRepository;
     private  final IUserFactory userFactory;
     private  final IUserResponseFactory userResponseFactory;
+    private final ITransactionClient transactionClient;
 
     @Autowired
-    public UserHandler(IUserRepository userRepository, IUserFactory userFactory, IUserResponseFactory userResponseFactory) {
+    public UserHandler(IUserRepository userRepository, IUserFactory userFactory, IUserResponseFactory userResponseFactory, ITransactionClient transactionClient) {
+
         this.userRepository = userRepository;
         this.userFactory =  userFactory;
         this.userResponseFactory = userResponseFactory;
+        this.transactionClient = transactionClient;
+
 
 
 
@@ -114,6 +119,13 @@ public class UserHandler implements IUserHandler {
          if (findUser.isFailure()) {
              return Result.failure(findUser.getFailureData().get());
          }
+
+         var deleteTransactionsResult = transactionClient.deleteTransactionsByUserId(id);
+            if (deleteTransactionsResult.isFailure()) {
+                return Result.failure(deleteTransactionsResult.getFailureData().get());
+            }
+
+
          var user = findUser.getSuccessData().get();
          userRepository.delete( user);
          var response = userResponseFactory.createDelete(user);

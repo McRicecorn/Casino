@@ -44,8 +44,11 @@ public enum ErrorWrapper {
     //UserHandler related errors
     USER_HANDLER_USER_ALREADY_EXISTS(
             "A user with the same first and last name already exists.",
-            HttpStatus.BAD_REQUEST)
+            HttpStatus.BAD_REQUEST),
 
+    EXTERNAL_SERVICE_ERROR(
+            "An error occurred while communicating with an external service.",
+            HttpStatus.BAD_GATEWAY),
 
 
 
