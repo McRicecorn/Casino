@@ -1,4 +1,4 @@
-package de.casino.banking_service.user.Utility;
+package de.casino.banking_service;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

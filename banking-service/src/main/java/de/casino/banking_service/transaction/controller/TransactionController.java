@@ -81,13 +81,14 @@ public class TransactionController {
 
     }
 
-    @DeleteMapping("/transactions/user/{userId}")
+    @DeleteMapping("/transactions/delete/user/{userId}")
     public ResponseEntity<?> deleteByUserId(@PathVariable Long userId) {
 
         var result = transactionHandler.deleteTransactionsByUserId(userId);
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(result.getSuccessData().get());
+
         } else {
             return ResponseEntity
                     .status(result.getFailureData().get().getHttpStatus())
