@@ -1,4 +1,14 @@
 services:
+<<<<<<< HEAD
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: banking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+=======
   # --- SLOTMACHINE ---
   slotmachine-service:
     build:
@@ -73,3 +83,4 @@ networks:
 volumes:
   slotmachine_data:
   roulette_data:
+>>>>>>> main
