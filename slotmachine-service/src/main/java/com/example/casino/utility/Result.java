@@ -1,4 +1,4 @@
-package de.casino.banking_service.user.Utility;
+package com.example.casino.utility;
 
 import java.util.Optional;
 

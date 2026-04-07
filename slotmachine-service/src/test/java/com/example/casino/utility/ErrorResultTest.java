@@ -1,8 +1,8 @@
-package de.casino.banking_service.transaction.utility;
+package com.example.casino.utility;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.casino.banking_service.user.Utility.ErrorResult;
+import com.example.casino.utility.ErrorResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
