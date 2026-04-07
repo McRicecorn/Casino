@@ -1,0 +1,22 @@
+GET http://localhost:8082/casino/slots/api/info/rules
+###
+GET http://localhost:8082/casino/slots/api/info/chances
+###
+POST http://localhost:8082/casino/slots/api/play
+Content-Type: application/json
+
+{
+  "user": 1,
+  "betAmount": 10.0
+}
+
+###
+GET http://localhost:8082/casino/slots/api/stat/games
+###
+GET http://localhost:8082/casino/slots/api/stat/1
+
+###
+GET http://localhost:8082/casino/slots/api/stats
+
+###
+GET http://localhost:8082/casino/slots/api/stats/user/1
