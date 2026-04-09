@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 @Service
-public class RouletteStatsService {
+public class RouletteStatsService implements IRouletteStatsService{
 
   private final RouletteGameRepository repo;
 
   public RouletteStatsService(RouletteGameRepository repo) {
     this.repo = repo;
   }
-
+  @Override
   public GlobalStatsView globalStats() {
     long games = repo.count();
     long clients = repo.countDistinctUsers();
@@ -24,7 +24,7 @@ public class RouletteStatsService {
     BigDecimal profit = repo.sumProfit();
     return new GlobalStatsView(games, clients, turnover, cashOut, profit);
   }
-
+  @Override
   public UserStatsView userStats(long userId) {
     long games = repo.countByUserId(userId);
     long wins = repo.countByUserIdAndWinningTrue(userId);

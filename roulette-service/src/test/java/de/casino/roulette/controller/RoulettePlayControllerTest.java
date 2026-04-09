@@ -2,7 +2,7 @@ package de.casino.roulette.controller;
 
 import de.casino.roulette.model.dto.BetType;
 import de.casino.roulette.model.dto.PlayResponse;
-import de.casino.roulette.service.RouletteGameService;
+import de.casino.roulette.service.IRouletteGameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -20,11 +20,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RoulettePlayControllerTest {
 
   private MockMvc mockMvc;
-  private RouletteGameService service;
+  private IRouletteGameService service;
 
   @BeforeEach
   void setUp() {
-    service = mock(RouletteGameService.class);
+    service = mock(IRouletteGameService.class);
 
     RoulettePlayController controller = new RoulettePlayController(service);
     ApiExceptionHandler exceptionHandler = new ApiExceptionHandler();
