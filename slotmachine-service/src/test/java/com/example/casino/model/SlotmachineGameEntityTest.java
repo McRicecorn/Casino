@@ -1,5 +1,6 @@
 package com.example.casino.model;
 
+import com.example.casino.factory.ISlotmachineGameFactory;
 import com.example.casino.utility.ErrorWrapper;
 import com.example.casino.utility.Result;
 import org.junit.jupiter.api.DisplayName;
@@ -46,11 +47,24 @@ class SlotmachineGameEntityTest {
     }
 
     @Test
-    @DisplayName("Create should return Failure for Invalid slot result")
+    @DisplayName("Create should return Failure for Invalid slot result (null)")
     void create_Failure_InvalidSlotResult() {
         //test
         Result<ISlotmachineGameEntity, ErrorWrapper> result =
                 SlotmachineGameEntity.create(userId, validBet, BigDecimal.ZERO, false, null, now);
+
+        //assert
+        assertTrue(result.isFailure());
+
+        assertEquals(ErrorWrapper.INVALID_SLOT_RESULT, result.getFailureData().get());
+    }
+
+    @Test
+    @DisplayName("Create should return Failure for Invalid slot result (isBlank)")
+    void create_Failure_BlankSlotResult() {
+        //test
+        Result<ISlotmachineGameEntity, ErrorWrapper> result =
+                SlotmachineGameEntity.create(userId, validBet, BigDecimal.ZERO, false, " ", now);
 
         //assert
         assertTrue(result.isFailure());
@@ -257,4 +271,6 @@ class SlotmachineGameEntityTest {
         assertNotNull(entity, "JPA requires a no-args constructor");
         assertEquals(0, entity.getId());
     }
+
+
 }

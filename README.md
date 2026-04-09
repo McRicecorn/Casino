@@ -22,6 +22,11 @@ Architektur: Geschichtete Architektur (Layered).
 Modellierung einer klassischen Slotmachine.
 
 Architektur: MVC-Architektur.
+  
+  
+Anmerkung zur Testcoverage: Unter dem IntelliJ-Runner werden einige Methoden nicht erreicht, daher sollte in den Einstellungen auf JaCoCo umgestellt werden.
+Dem Slotmachine Handler fehlen zwei Branches für die Coverage in Zeile 155. Hier wurde darauf verzichtet, für jede mögliche Walzenkombination den kleinen Gewinn zu testen.
+Ebenso wurde die SlotmachineApplication-Klasse nicht getestet, da sie keine Geschäftslogik enthält und lediglich Springboot testen würde.
 
 Jeder Service verfügt über eine eigene PostgreSQL-Datenbank, um eine vollständige Entkopplung zu gewährleisten.
 
