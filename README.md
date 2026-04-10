@@ -5,13 +5,15 @@ Dieses Projekt wurde im Rahmen des Moduls B42 Softwareengineering und Softwarear
 Das System ermöglicht es Benutzern, Konten zu erstellen, Guthaben zu verwalten und an verschiedenen Casinospielen teilzunehmen. Ein besonderer Fokus liegt auf der transparenten Darstellung von Gewinnchancen und Statistiken.
 
 ## Die Microservices:
-### Banking-Service:
+### 🏦 Banking-Service:
 
 Zuständig für User-Management, Transaktionen und Statistiken.
 
-Architektur: Vertical Slice (Unterteilung in User und Transaction).
+Architektur: Vertical Slice (Unterteilung in User, Transaction und Stats).
 
-### Roulette-Service:
+Anmerkung zur Testcoverage: Die BankingServiceApplication wurde nicht getestet, da sie keine Geschäftslogik enthält und nur Spring-Boot startet.
+
+### 🛞 Roulette-Service:
 
 Modellierung des Spiels Roulette.
 
@@ -20,11 +22,11 @@ Architektur: Geschichtete Architektur (Layered).
 Anmerkung zur Testcoverage: Die RouletteServiceApplication wurde nicht getestet, da sie keine eigene Logik enthält und nur den Spring-Boot-Start ausführt.
 Im RouletteGameService sind außerdem nicht alle möglichen Fälle vollständig getestet, da es sehr viele Wettkombinationen gibt und zusätzliche Tests hier keinen wirklichen Mehrwert gebracht hätten.
 
-### Slotmachine-Service:
+### 🎰 Slotmachine-Service:
 
 Modellierung einer klassischen Slotmachine.
 
-Architektur: MVC-Architektur.
+Architektur: Geschichtete Architektur (Layered) & MVC-Architektur.
   
   
 Anmerkung zur Testcoverage: Unter dem IntelliJ-Runner werden einige Methoden nicht erreicht, daher sollte in den Einstellungen auf JaCoCo umgestellt werden.
@@ -59,8 +61,7 @@ Repository klonen:
 
 Bash
 ```
-git clone [DEIN_REPO_LINK]
-cd Casino
+git clone https://github.com/McRicecorn/Casino.git
 ```
   
 Artefakte bauen (JAR-Dateien):
@@ -72,7 +73,7 @@ mvn clean install -DskipTests
 ```
 
 Container starten:
-Stelle sicher, dass deine docker-compose.yml im Hauptverzeichnis liegt und führe aus:
+Stelle sicher, dass die docker-compose.yml im Hauptverzeichnis liegt und führe aus:
 
 Bash
 ```
@@ -97,6 +98,6 @@ Dieses Werk ist lizenziert unter einer Creative Commons Namensnennung 4.0 Intern
 Weitere Informationen finden Sie unter: http://creativecommons.org/licenses/by/4.0/
 
 # 👥 Autoren
-Catharina Hoppensack, Matr.-Nr.: 594129
-Duc....
-Elias Märker, Mat-Nr.: 594298
+Catharina Hoppensack, Matr.-Nr.: 594129  
+Duc....  
+Elias Märker, Matr.-Nr.: 594298  

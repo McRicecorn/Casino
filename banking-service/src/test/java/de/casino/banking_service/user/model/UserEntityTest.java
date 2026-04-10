@@ -410,8 +410,26 @@ class UserEntityTest {
         assertNotNull(new UserEntity());
     }
 
+    @Test
+    void rename_onlyFirstNameIdentical_shouldSucceed() {
+        // John Doe -> John Smith (Vorname bleibt gleich, Nachname ändert sich)
+        // Ergebnis der Bedingung: (true && false) -> false
+        var result = user.rename("John", "Smith");
 
+        assertTrue(result.isSuccess());
+        assertEquals("John", user.getFirstName());
+        assertEquals("Smith", user.getLastName());
+    }
 
+    @Test
+    void rename_onlyLastNameIdentical_shouldSucceed() {
+        // John Doe -> Jane Doe (Vorname ändert sich, Nachname bleibt gleich)
+        // Ergebnis der Bedingung: (false && true) -> false
+        var result = user.rename("Jane", "Doe");
 
+        assertTrue(result.isSuccess());
+        assertEquals("Jane", user.getFirstName());
+        assertEquals("Doe", user.getLastName());
+    }
 
 }

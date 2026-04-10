@@ -8,6 +8,7 @@ import de.casino.banking_service.stat.Responses.transactionResponses.GetAllTrans
 import de.casino.banking_service.stat.Utility.ErrorWrapper;
 import de.casino.banking_service.common.Result;
 import de.casino.banking_service.stat.responseFactory.responseFactory;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,15 +20,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StatHandlerTest {
 
     @Mock
     private ITransactionClientStats tClient;
-
 
     @Mock
     private responseFactory responseFactory;
@@ -73,6 +72,7 @@ class StatHandlerTest {
         assertEquals(3, response.getTotalTransactions());
         assertEquals(new BigDecimal("25"), response.getNet());
     }
+
     @Test
     void getGlobalStat_shouldCalculateCorrectly() {
 
@@ -103,6 +103,7 @@ class StatHandlerTest {
         assertEquals(2, response.getTotalTransactions());
         assertEquals(new BigDecimal("-10"), response.getNet());
     }
+
     @Test
     void getGlobalStat_shouldFail_whenClientFails() {
 
@@ -197,5 +198,90 @@ class StatHandlerTest {
         var response = result.getSuccessData().get();
 
         assertEquals(2, response.getTotalGamesPlayed());
+    }
+
+    @Test
+    @DisplayName("Should return failure data when transactionResult is failure")
+    void getGlobalStatsByUserId_shouldFail_whenClientFails() {
+        //setup
+        Long userId = 123L;
+        when(tClient.getAllTransactionsById(userId))
+                .thenReturn(Result.failure(ErrorWrapper.USER_WAS_NOT_FOUND));
+
+        //test
+        var result = statHandler.getGlobalStatByUserId(userId);
+
+        //assert
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.USER_WAS_NOT_FOUND, result.getFailureData().get());
+        verifyNoInteractions(responseFactory);
+        verify(tClient, times(1)).getAllTransactionsById(userId);
+    }
+
+    @Test
+    void getGameStats_byUser_shouldFail_whenClientFails() {
+        long userId = 1L;
+        String gameName = "ROULETTE";
+
+        when(tClient.getAllTransactionsById(userId))
+                .thenReturn(Result.failure(ErrorWrapper.EXTERNAL_SERVICE_ERROR));
+
+        var result = statHandler.getGameStats(gameName, userId);
+
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.EXTERNAL_SERVICE_ERROR, result.getFailureData().get());
+        verifyNoInteractions(responseFactory);
+    }
+
+    @Test
+    void getGameStats_global_shouldFail_whenGameInvalid() {
+        var result = statHandler.getGameStats("NICHT_EXISTENT");
+
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.INVOICING_PARTY_DOES_NOT_EXIST, result.getFailureData().get());
+    }
+
+    @Test
+    void getGameStats_global_shouldFail_whenClientFails() {
+        String gameName = "SLOTS";
+
+        when(tClient.getAllTransactions())
+                .thenReturn(Result.failure(ErrorWrapper.EXTERNAL_SERVICE_ERROR));
+
+        var result = statHandler.getGameStats(gameName);
+
+        assertTrue(result.isFailure());
+        assertEquals(ErrorWrapper.EXTERNAL_SERVICE_ERROR, result.getFailureData().get());
+        verifyNoInteractions(responseFactory);
+    }
+
+    @Test
+    void getGameStats_global_shouldFilterCorrectlyByGameName() {
+        //setup
+        var transactions = List.of(
+                new GetAllTransactionsTClientResponse(1, 1L, new BigDecimal("100"), Games.ROULETTE),
+                new GetAllTransactionsTClientResponse(2, 2L, new BigDecimal("50"), Games.SLOTS), // Diese soll den 'false' Branch triggern
+                new GetAllTransactionsTClientResponse(3, 3L, new BigDecimal("-20"), Games.ROULETTE)
+        );
+
+        when(tClient.getAllTransactions()).thenReturn(Result.success(transactions));
+
+        when(responseFactory.createGetGameStatsResponse(anyInt(), anyInt(), anyInt(), any(), any(), eq(Games.ROULETTE)))
+                .thenAnswer(inv -> new GetGameStatsResponse(
+                        inv.getArgument(0), inv.getArgument(1), inv.getArgument(2),
+                        inv.getArgument(3), inv.getArgument(4), inv.getArgument(5)
+                ));
+
+        //test --> asking only for roulette
+        var result = statHandler.getGameStats("ROULETTE");
+
+        //assert
+        assertTrue(result.isSuccess());
+        var response = result.getSuccessData().get();
+
+        //slot transactions should NOT be counted
+        assertEquals(2, response.getTotalGamesPlayed(), "Only 2 games should be counted; SLOTS must be ignored");
+        assertEquals(new BigDecimal("100"), response.getTotalGain());
+        assertEquals(new BigDecimal("20"), response.getTotalLoss());
     }
 }

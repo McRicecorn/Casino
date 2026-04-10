@@ -197,7 +197,6 @@ public class StatHandler implements IStathandler{
         }
 
 
-
         var response = responseFactory.createGetGameStatsResponse(
                 totalGamesPlayed,
                 totalGamesWon,
