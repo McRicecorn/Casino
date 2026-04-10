@@ -65,7 +65,37 @@ services:
       - casino_network
 
   # --- BANKING ---
-  # Hier analog zu oben hinzufügen
+  banking-service:
+    build:
+      context: ./banking-service
+      dockerfile: Dockerfile
+    container_name: banking-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - banking-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://banking-db:5432/banking_db
+      SPRING_DATASOURCE_USERNAME: banking
+      SPRING_DATASOURCE_PASSWORD: passwort
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - casino_network
+
+  banking-db:
+    image: postgres:16
+    container_name: banking-db
+    restart: always
+    environment:
+      POSTGRES_DB: banking_db
+      POSTGRES_USER: banking
+      POSTGRES_PASSWORD: passwort
+    ports:
+      - "5435:5432"
+    volumes:
+      - banking_data:/var/lib/postgresql/data
+    networks:
+      - casino_network
 
 networks:
   casino_network:
@@ -73,3 +103,4 @@ networks:
 volumes:
   slotmachine_data:
   roulette_data:
+  banking_data:
