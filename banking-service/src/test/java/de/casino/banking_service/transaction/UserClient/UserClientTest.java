@@ -106,6 +106,25 @@ class UserClientTest {
                 eq(Object.class)
         );
     }
+    @Test
+    void deposit_withoutDecimals_shouldReturnSuccess() {
+
+        Long userId = 1L;
+        BigDecimal amount = new BigDecimal("10");
+
+        when(restTemplate.postForEntity(anyString(), isNull(), eq(Object.class)))
+                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        var result = userClient.deposit(userId, amount);
+
+        assertTrue(result.isSuccess());
+
+        verify(restTemplate).postForEntity(
+                contains("/1/deposit/10/00"),
+                isNull(),
+                eq(Object.class)
+        );
+    }
 
     @Test
     void deposit_failure_shouldReturnError() {
@@ -119,6 +138,8 @@ class UserClientTest {
         assertEquals(ErrorWrapper.USER_SERVICE_BAD_RESPONSE,
                 result.getFailureData().get());
     }
+
+
 
     @Test
     void withdraw_success_shouldReturnSuccess() {
@@ -135,6 +156,26 @@ class UserClientTest {
 
         verify(restTemplate).postForEntity(
                 contains("/1/withdraw/5/25"),
+                isNull(),
+                eq(Object.class)
+        );
+    }
+
+    @Test
+    void withdraw_withoutDecimals_shouldReturnSuccess() {
+
+        Long userId = 1L;
+        BigDecimal amount = new BigDecimal("5");
+
+        when(restTemplate.postForEntity(anyString(), isNull(), eq(Object.class)))
+                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        var result = userClient.withdraw(userId, amount);
+
+        assertTrue(result.isSuccess());
+
+        verify(restTemplate).postForEntity(
+                contains("/1/withdraw/5/00"),
                 isNull(),
                 eq(Object.class)
         );

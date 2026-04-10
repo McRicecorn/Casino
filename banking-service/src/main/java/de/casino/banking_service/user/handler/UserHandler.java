@@ -1,12 +1,12 @@
 package de.casino.banking_service.user.handler;
 
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.user.Request.IUserRequest;
 import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.TransactionClient.ITransactionClient;
 import de.casino.banking_service.user.UserFactory.IUserFactory;
 import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
-import de.casino.banking_service.user.Utility.Result;
 
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.IUserRepository;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class UserHandler implements IUserHandler {

@@ -1,9 +1,10 @@
 package de.casino.banking_service.transaction.response.transactionResponse;
 
-import de.casino.banking_service.transaction.utility.Games;
+import de.casino.banking_service.common.Games;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 
 public class DeleteAllTransactionsResponse implements ITransactionResponse{
 

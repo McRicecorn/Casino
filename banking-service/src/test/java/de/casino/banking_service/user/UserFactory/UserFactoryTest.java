@@ -1,7 +1,7 @@
 package de.casino.banking_service.user.UserFactory;
 
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
-import de.casino.banking_service.user.Utility.Result;
 import de.casino.banking_service.user.model.IUserEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

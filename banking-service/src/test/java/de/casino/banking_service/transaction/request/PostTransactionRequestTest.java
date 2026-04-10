@@ -1,6 +1,6 @@
 package de.casino.banking_service.transaction.request;
 
-import de.casino.banking_service.transaction.utility.Games;
+import de.casino.banking_service.common.Games;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

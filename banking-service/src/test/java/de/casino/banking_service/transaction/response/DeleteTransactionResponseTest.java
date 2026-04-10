@@ -1,7 +1,7 @@
 package de.casino.banking_service.transaction.response;
 
+import de.casino.banking_service.common.Games;
 import de.casino.banking_service.transaction.response.transactionResponse.DeleteTransactionResponse;
-import de.casino.banking_service.transaction.utility.Games;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

@@ -2,6 +2,7 @@ package de.casino.banking_service.transaction.response;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import de.casino.banking_service.common.Games;
 import de.casino.banking_service.transaction.response.transactionResponse.GetAllTransactionResponse;
 import org.junit.jupiter.api.Test;
 
@@ -14,9 +15,10 @@ class GetAllTransactionResponseTest {
         long id = 1L;
         long userId = 2L;
         BigDecimal amount = new BigDecimal("10.00");
+        Games invoicingParty = Games.ROULETTE;
 
         GetAllTransactionResponse response =
-                new GetAllTransactionResponse(id, userId, amount);
+                new GetAllTransactionResponse(id, userId, amount, invoicingParty);
 
         assertEquals(id, response.getId());
         assertEquals(userId, response.getUserId());
@@ -27,12 +29,14 @@ class GetAllTransactionResponseTest {
     void constructor_nullAmount_shouldAllowNull() {
         long id = 1L;
         long userId = 2L;
+        Games invoicingParty = Games.ROULETTE;
 
         GetAllTransactionResponse response =
-                new GetAllTransactionResponse(id, userId, null);
+                new GetAllTransactionResponse(id, userId, null, invoicingParty);
 
         assertEquals(id, response.getId());
         assertEquals(userId, response.getUserId());
+        assertEquals(invoicingParty, response.getInvoicingParty());
         assertNull(response.getAmount());
     }
 }

@@ -1,8 +1,8 @@
 package de.casino.banking_service.transaction.responseFactory;
 
+import de.casino.banking_service.common.Games;
 import de.casino.banking_service.transaction.model.ITransactionEntity;
 import de.casino.banking_service.transaction.response.transactionResponse.ITransactionResponse;
-import de.casino.banking_service.transaction.utility.Games;
 
 import java.math.BigDecimal;
 import java.util.List;

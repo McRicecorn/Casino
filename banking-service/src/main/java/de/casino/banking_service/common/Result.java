@@ -1,4 +1,4 @@
-package de.casino.banking_service.transaction.utility;
+package de.casino.banking_service.common;
 
 import java.util.Optional;
 

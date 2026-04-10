@@ -1,8 +1,8 @@
 package de.casino.banking_service.transaction.UserClient;
 
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.transaction.response.userResponse.GetUserClientResponse;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
-import de.casino.banking_service.transaction.utility.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

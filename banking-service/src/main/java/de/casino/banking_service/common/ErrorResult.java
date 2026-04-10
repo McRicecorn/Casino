@@ -1,8 +1,8 @@
-package de.casino.banking_service.transaction.utility;
+package de.casino.banking_service.common;
 
 import java.util.Optional;
 
-public class ErrorResult <FailureType>{
+public class ErrorResult<FailureType>{
 
     private final boolean success;
     private final FailureType failureData;

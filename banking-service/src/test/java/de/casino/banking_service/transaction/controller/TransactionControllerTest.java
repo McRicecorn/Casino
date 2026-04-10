@@ -1,11 +1,11 @@
 package de.casino.banking_service.transaction.controller;
 
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.transaction.handler.ITransactionHandler;
 import de.casino.banking_service.transaction.request.PostTransactionRequest;
 import de.casino.banking_service.transaction.request.PutTransactionRequest;
 import de.casino.banking_service.transaction.response.transactionResponse.ITransactionResponse;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
-import de.casino.banking_service.transaction.utility.Result;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -170,4 +170,41 @@ class TransactionControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Transaction not found", response.getBody());
     }
+    @Test
+    void deleteByUserId_success_shouldReturnOk() {
+
+        Long userId = 1L;
+        ITransactionResponse responseMock = mock(ITransactionResponse.class);
+
+        when(mockHandler.deleteTransactionsByUserId(userId))
+                .thenReturn(Result.success(responseMock));
+
+        var response = controller.deleteByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(responseMock, response.getBody());
+
+        verify(mockHandler).deleteTransactionsByUserId(userId);
+    }
+
+    @Test
+    void deleteByUserId_failure_shouldReturnError() {
+
+        Long userId = 1L;
+        ErrorWrapper error = mock(ErrorWrapper.class);
+
+        when(mockHandler.deleteTransactionsByUserId(userId))
+                .thenReturn(Result.failure(error));
+
+        when(error.getHttpStatus()).thenReturn(HttpStatus.BAD_REQUEST);
+        when(error.getMessage()).thenReturn("Delete failed");
+
+        var response = controller.deleteByUserId(userId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Delete failed", response.getBody());
+
+        verify(mockHandler).deleteTransactionsByUserId(userId);
+    }
+
 }

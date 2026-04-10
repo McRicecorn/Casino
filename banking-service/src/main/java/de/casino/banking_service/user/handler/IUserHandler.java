@@ -1,11 +1,9 @@
 package de.casino.banking_service.user.handler;
 
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.user.Request.IUserRequest;
 import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
-import de.casino.banking_service.user.Utility.Result;
-import de.casino.banking_service.user.model.UserEntity;
-import de.casino.banking_service.user.repository.IUserRepository;
 
 import java.math.BigDecimal;
 

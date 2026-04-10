@@ -3,8 +3,8 @@ package de.casino.banking_service.transaction.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.casino.banking_service.transaction.utility.Games;
 import io.swagger.v3.oas.annotations.media.Schema;
+import de.casino.banking_service.common.Games;
 
 import java.math.BigDecimal;
 

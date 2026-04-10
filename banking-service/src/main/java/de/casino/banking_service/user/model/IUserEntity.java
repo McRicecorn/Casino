@@ -1,6 +1,6 @@
 package de.casino.banking_service.user.model;
 
-import de.casino.banking_service.user.Utility.ErrorResult;
+import de.casino.banking_service.common.ErrorResult;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
 
 import java.math.BigDecimal;

@@ -1,7 +1,7 @@
 package de.casino.banking_service.transaction.response.transactionResponse;
 
 
-import de.casino.banking_service.transaction.utility.Games;
+import de.casino.banking_service.common.Games;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

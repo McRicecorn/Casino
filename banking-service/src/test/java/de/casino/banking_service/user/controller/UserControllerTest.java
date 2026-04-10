@@ -1,5 +1,6 @@
 package de.casino.banking_service.user.controller;
 
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.user.Request.CreateUserRequest;
 
 import de.casino.banking_service.user.Request.UpdateUserRequest;
@@ -7,7 +8,6 @@ import de.casino.banking_service.user.Response.DeleteUserResponse;
 import de.casino.banking_service.user.Response.GetUserResponse;
 import de.casino.banking_service.user.Response.IUserResponse;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
-import de.casino.banking_service.user.Utility.Result;
 
 import de.casino.banking_service.user.handler.IUserHandler;
 

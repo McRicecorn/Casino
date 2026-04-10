@@ -1,15 +1,13 @@
 package de.casino.banking_service.transaction.model;
 
+import de.casino.banking_service.common.Games;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
-import de.casino.banking_service.transaction.utility.Games;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -207,9 +205,18 @@ class TransactionEntityTest {
 
 
 
+
     }
 
 
+    @Test
+    public void emptyConstructor_shouldInitializeFields() {
+        TransactionEntity entity = new TransactionEntity();
 
+        assertNotNull(entity);
+        assertNull(entity.getAmount());
+        assertNull(entity.getInvoicingParty());
+        assertNull(entity.getUserId());
+    }
 
 }

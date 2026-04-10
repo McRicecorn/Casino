@@ -1,16 +1,12 @@
 package de.casino.banking_service.transaction.model;
 
-import de.casino.banking_service.transaction.utility.ErrorResult;
+import de.casino.banking_service.common.ErrorResult;
+import de.casino.banking_service.common.Games;
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
-import de.casino.banking_service.transaction.utility.Result;
-import de.casino.banking_service.transaction.utility.Games;
-import de.casino.banking_service.user.model.UserEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-
-import static de.casino.banking_service.transaction.utility.Games.ROULETTE;
-
 
 
 //Todo: Balance bei Update ändern
@@ -41,7 +37,7 @@ public class TransactionEntity implements ITransactionEntity {
     public TransactionEntity() {
 
     }
-    public static Result <ITransactionEntity, ErrorWrapper> create(BigDecimal amount, Games invoicingParty, long user){
+    public static Result<ITransactionEntity, ErrorWrapper> create(BigDecimal amount, Games invoicingParty, long user){
         var isInvoicingPartyValid = validateInvoicingParty(invoicingParty);
         if (isInvoicingPartyValid.isFailure()) {
             return Result.failure(isInvoicingPartyValid.getFailureData().get());

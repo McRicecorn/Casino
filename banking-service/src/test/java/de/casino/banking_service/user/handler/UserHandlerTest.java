@@ -1,12 +1,14 @@
 package de.casino.banking_service.user.handler;
 
+import de.casino.banking_service.common.ErrorResult;
+import de.casino.banking_service.common.Result;
+import de.casino.banking_service.transaction.UserClient.IUserClient;
 import de.casino.banking_service.user.Request.IUserRequest;
 import de.casino.banking_service.user.Response.IUserResponse;
+import de.casino.banking_service.user.TransactionClient.ITransactionClient;
 import de.casino.banking_service.user.UserFactory.IUserFactory;
 import de.casino.banking_service.user.UserResponseFactory.IUserResponseFactory;
-import de.casino.banking_service.user.Utility.ErrorResult;
 import de.casino.banking_service.user.Utility.ErrorWrapper;
-import de.casino.banking_service.user.Utility.Result;
 
 import de.casino.banking_service.user.model.UserEntity;
 import de.casino.banking_service.user.repository.IUserRepository;
@@ -46,6 +48,9 @@ class UserHandlerTest {
 
     @Mock
     private IUserResponse userResponse;
+
+    @Mock
+    private ITransactionClient transactionClient;
 
     @InjectMocks
     private UserHandler userHandler;
@@ -235,18 +240,75 @@ class UserHandlerTest {
 
     @Nested
     class deleteUserTests {
+
+
         @Test
-        void deleteUser_ExistingUser_ShouldDeleteUser() {
+        void deleteUser_ValidRequest_ShouldDeleteUserAndTransactions() {
+
             UserEntity existingUser = mock(UserEntity.class);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+            IUserResponse response = mock(IUserResponse.class);
+
+
+            when(userRepository.findById(1L))
+                    .thenReturn(Optional.of(existingUser));
+
+
+            when(transactionClient.deleteTransactionsByUserId(1L))
+                    .thenReturn(Result.success(null));
+
+            when(userResponseFactory.createDelete(existingUser))
+                    .thenReturn(response);
 
             // Act
             Result<IUserResponse, ErrorWrapper> result = userHandler.deleteUser(1L);
 
             // Assert
             assertTrue(result.isSuccess());
-            verify(userRepository, times(1)).findById(1L);
-            verify(userRepository, times(1)).delete(existingUser);
+            assertEquals(response, result.getSuccessData().get());
+
+            verify(userRepository).findById(1L);
+            verify(transactionClient).deleteTransactionsByUserId(1L);
+            verify(userRepository).delete(existingUser);
+            verify(userResponseFactory).createDelete(existingUser);
+        }
+        @Test
+        void deleteUser_UserNotFound_ShouldReturnError() {
+
+            when(userRepository.findById(1L))
+                    .thenReturn(Optional.empty());
+
+            Result<IUserResponse, ErrorWrapper> result = userHandler.deleteUser(1L);
+
+            assertTrue(result.isFailure());
+            assertEquals(ErrorWrapper.USER_NOT_FOUND,
+                    result.getFailureData().get());
+
+            verify(userRepository).findById(1L);
+            verifyNoInteractions(transactionClient);
+            verifyNoInteractions(userResponseFactory);
+        }
+
+        @Test
+        void deleteUser_TransactionDeleteFails_ShouldReturnError() {
+
+            UserEntity existingUser = mock(UserEntity.class);
+
+            when(userRepository.findById(1L))
+                    .thenReturn(Optional.of(existingUser));
+
+            when(transactionClient.deleteTransactionsByUserId(1L))
+                    .thenReturn(Result.failure(ErrorWrapper.EXTERNAL_SERVICE_ERROR));
+
+            Result<IUserResponse, ErrorWrapper> result = userHandler.deleteUser(1L);
+
+            assertTrue(result.isFailure());
+            assertEquals(ErrorWrapper.EXTERNAL_SERVICE_ERROR,
+                    result.getFailureData().get());
+
+            verify(userRepository).findById(1L);
+            verify(transactionClient).deleteTransactionsByUserId(1L);
+            verifyNoMoreInteractions(userRepository);
+            verifyNoInteractions(userResponseFactory);
         }
 
         @Test

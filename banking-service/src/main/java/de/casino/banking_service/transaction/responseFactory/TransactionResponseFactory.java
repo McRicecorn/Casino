@@ -1,8 +1,8 @@
 package de.casino.banking_service.transaction.responseFactory;
 
+import de.casino.banking_service.common.Games;
 import de.casino.banking_service.transaction.model.ITransactionEntity;
 import de.casino.banking_service.transaction.response.transactionResponse.*;
-import de.casino.banking_service.transaction.utility.Games;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,7 +16,8 @@ public class TransactionResponseFactory implements ITransactionResponseFactory {
         return new GetAllTransactionResponse(
                 t.getTransactionId(),
                 t.getUserId(),
-                t.getAmount()
+                t.getAmount(),
+                t.getInvoicingParty()
         );
     }
 

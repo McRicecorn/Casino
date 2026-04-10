@@ -1,10 +1,9 @@
 package de.casino.banking_service.transaction.modelFactory;
 
+import de.casino.banking_service.common.Games;
+import de.casino.banking_service.common.Result;
 import de.casino.banking_service.transaction.model.ITransactionEntity;
 import de.casino.banking_service.transaction.utility.ErrorWrapper;
-import de.casino.banking_service.transaction.utility.Games;
-import de.casino.banking_service.transaction.utility.Result;
-import de.casino.banking_service.user.model.UserEntity;
 
 import java.math.BigDecimal;
 

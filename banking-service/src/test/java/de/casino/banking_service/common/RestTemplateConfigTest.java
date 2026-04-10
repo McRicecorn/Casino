@@ -1,6 +1,5 @@
-package de.casino.banking_service.transaction.utility;
+package de.casino.banking_service.common;
 
-import de.casino.banking_service.RestTemplateConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
