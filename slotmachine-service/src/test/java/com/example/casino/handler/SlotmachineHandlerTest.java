@@ -542,4 +542,84 @@ class SlotmachineHandlerTest {
         verify(repository).findAll();
         verify(responseFactory).createGlobalStatsResponse(mockGames);
     }
+
+    @Test
+    @DisplayName("Should return failure when modelFactory fails to create the game entity")
+    void play_Failure_ModelFactoryCreationFailed() {
+        // setup
+        BigDecimal betAmount = BigDecimal.valueOf(10);
+        ISlotmachineRequest request = new SlotmachineRequest(1L, betAmount);
+
+        BankingUserResponse user = mock(BankingUserResponse.class);
+        when(user.getBalance()).thenReturn(BigDecimal.valueOf(100));
+        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+                .thenReturn(user);
+
+        when(random.nextInt(anyInt())).thenReturn(0, 1, 2);
+
+        when(restTemplate.postForObject(anyString(), any(), eq(Object.class)))
+                .thenReturn(new Object());
+
+        ErrorWrapper factoryError = ErrorWrapper.UNEXPECTED_INTERNAL_ERROR;
+        when(modelFactory.createSlotmachine(anyLong(), any(), any(), anyBoolean(), anyString()))
+                .thenReturn(Result.failure(factoryError));
+
+        //test
+        var result = handler.play(request);
+
+        // Assert
+        assertTrue(result.isFailure(), "Result should be a failure");
+        assertEquals(factoryError, result.getFailureData().get(), "Should return the error from the factory");
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should return unexpected internal error when transaction posting fails")
+    void play_Failure_TransactionPostFails() {
+        //setup
+        BigDecimal betAmount = BigDecimal.valueOf(10);
+        ISlotmachineRequest request = new SlotmachineRequest(1L, betAmount);
+
+        BankingUserResponse user = mock(BankingUserResponse.class);
+        when(user.getBalance()).thenReturn(BigDecimal.valueOf(100));
+        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+                .thenReturn(user);
+
+        when(random.nextInt(anyInt())).thenReturn(0, 1, 2);
+
+        when(restTemplate.postForObject(contains("transaction"), any(), eq(Object.class)))
+                .thenThrow(new RuntimeException("Database connection lost during transaction"));
+
+        //test
+        var result = handler.play(request);
+
+        //assert
+        assertTrue(result.isFailure(), "Result should be a failure");
+        assertEquals(ErrorWrapper.UNEXPECTED_INTERNAL_ERROR, result.getFailureData().get());
+
+        verify(restTemplate).postForObject(anyString(), any(), any());
+        verifyNoInteractions(repository, modelFactory);
+    }
+
+    @Test
+    @DisplayName("Should return user not found error when banking service returns null")
+    void play_Failure_UserNotFound() {
+        //setup
+        BigDecimal betAmount = BigDecimal.valueOf(10);
+        ISlotmachineRequest request = new SlotmachineRequest(1L, betAmount);
+
+        when(restTemplate.getForObject(anyString(), eq(BankingUserResponse.class)))
+                .thenReturn(null);
+
+        //test
+        var result = handler.play(request);
+
+        // assert
+        assertTrue(result.isFailure(), "Result should be a failure");
+        assertEquals(ErrorWrapper.USER_NOT_FOUND, result.getFailureData().get());
+
+        verify(restTemplate).getForObject(anyString(), eq(BankingUserResponse.class));
+        verifyNoInteractions(random, repository, modelFactory, responseFactory);
+    }
 }

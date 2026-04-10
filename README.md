@@ -17,11 +17,19 @@ Modellierung des Spiels Roulette.
 
 Architektur: Geschichtete Architektur (Layered).
 
+Anmerkung zur Testcoverage: Die RouletteServiceApplication wurde nicht getestet, da sie keine eigene Logik enthält und nur den Spring-Boot-Start ausführt.
+Im RouletteGameService sind außerdem nicht alle möglichen Fälle vollständig getestet, da es sehr viele Wettkombinationen gibt und zusätzliche Tests hier keinen wirklichen Mehrwert gebracht hätten.
+
 ### Slotmachine-Service:
 
 Modellierung einer klassischen Slotmachine.
 
 Architektur: MVC-Architektur.
+  
+  
+Anmerkung zur Testcoverage: Unter dem IntelliJ-Runner werden einige Methoden nicht erreicht, daher sollte in den Einstellungen auf JaCoCo umgestellt werden.
+Dem Slotmachine Handler fehlen zwei Branches für die Coverage in Zeile 155. Hier wurde darauf verzichtet, für jede mögliche Walzenkombination den kleinen Gewinn zu testen.
+Ebenso wurde die SlotmachineApplication-Klasse nicht getestet, da sie keine Geschäftslogik enthält und lediglich Springboot testen würde.
 
 Jeder Service verfügt über eine eigene PostgreSQL-Datenbank, um eine vollständige Entkopplung zu gewährleisten.
 
@@ -91,4 +99,4 @@ Weitere Informationen finden Sie unter: http://creativecommons.org/licenses/by/4
 # 👥 Autoren
 Catharina Hoppensack, Matr.-Nr.: 594129
 Duc....
-Elias....
+Elias Märker, Mat-Nr.: 594298

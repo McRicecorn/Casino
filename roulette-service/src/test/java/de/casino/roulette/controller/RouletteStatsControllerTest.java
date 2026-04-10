@@ -2,7 +2,7 @@ package de.casino.roulette.controller;
 
 import de.casino.roulette.model.dto.GlobalStatsView;
 import de.casino.roulette.model.dto.UserStatsView;
-import de.casino.roulette.service.RouletteStatsService;
+import de.casino.roulette.service.IRouletteStatsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,11 +18,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RouletteStatsControllerTest {
 
   private MockMvc mockMvc;
-  private RouletteStatsService statsService;
+  private IRouletteStatsService statsService;
 
   @BeforeEach
   void setUp() {
-    statsService = mock(RouletteStatsService.class);
+    statsService = mock(IRouletteStatsService.class);
     RouletteStatsController controller = new RouletteStatsController(statsService);
 
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();

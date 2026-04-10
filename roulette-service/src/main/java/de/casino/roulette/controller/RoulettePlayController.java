@@ -2,7 +2,7 @@ package de.casino.roulette.controller;
 
 import de.casino.roulette.model.dto.PlayRequest;
 import de.casino.roulette.model.dto.PlayResponse;
-import de.casino.roulette.service.RouletteGameService;
+import de.casino.roulette.service.IRouletteGameService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/casino/roulette/api")
 public class RoulettePlayController {
 
-  private final RouletteGameService service;
+  private final IRouletteGameService service;
 
-  public RoulettePlayController(RouletteGameService service) {
+  public RoulettePlayController(IRouletteGameService service) {
     this.service = service;
   }
 

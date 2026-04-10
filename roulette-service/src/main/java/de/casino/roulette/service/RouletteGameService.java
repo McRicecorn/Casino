@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.util.Locale;
 
 @Service
-public class RouletteGameService {
+public class RouletteGameService implements IRouletteGameService {
 
   private final RouletteGameRepository repo;
   private final SecureRandom random = new SecureRandom();
@@ -20,7 +20,7 @@ public class RouletteGameService {
   public RouletteGameService(RouletteGameRepository repo) {
     this.repo = repo;
   }
-
+  @Override
   @Transactional
   public PlayResponse play(PlayRequest req) {
     int ball = random.nextInt(37);
