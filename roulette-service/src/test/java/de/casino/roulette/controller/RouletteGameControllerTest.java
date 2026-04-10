@@ -1,10 +1,11 @@
 package de.casino.roulette.controller;
 
 import de.casino.roulette.model.dto.BetType;
-import de.casino.roulette.model.entity.RouletteGameEntity;
-import de.casino.roulette.repository.RouletteGameRepository;
+import de.casino.roulette.model.dto.GameView;
+import de.casino.roulette.service.IRouletteGameQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -21,74 +22,56 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RouletteGameControllerTest {
 
   private MockMvc mockMvc;
-  private RouletteGameRepository repo;
+  private IRouletteGameQueryService service;
 
   @BeforeEach
   void setUp() {
-    repo = mock(RouletteGameRepository.class);
-    RouletteGameController controller = new RouletteGameController(repo);
+    service = mock(IRouletteGameQueryService.class);
+    RouletteGameController controller = new RouletteGameController(service);
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }
 
   @Test
   void allGames_returnsList() throws Exception {
-    RouletteGameEntity game = new RouletteGameEntity(
-      1L,
-      BetType.COLOR,
-      "RED",
-      new BigDecimal("10.00"),
-      33,
-      false,
-      new BigDecimal("-10.00"),
-      Instant.parse("2026-02-27T12:00:00Z")
+    GameView game = new GameView(1L, 1L, BetType.COLOR, "RED", new BigDecimal("10.00"), 33, false, new BigDecimal("-10.00"), Instant.parse("2026-02-27T12:00:00Z")
     );
-    game.setId(1L);
 
-    when(repo.findAll()).thenReturn(List.of(game));
+    when(service.allGames()).thenReturn(List.of(game));
 
     mockMvc.perform(get("/casino/roulette/api/stats/games"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$[0].id").value(1))
-      .andExpect(jsonPath("$[0].user").value(1))
-      .andExpect(jsonPath("$[0].betType").value("COLOR"))
-      .andExpect(jsonPath("$[0].betValue").value("RED"))
-      .andExpect(jsonPath("$[0].betAmount").value(10.00))
-      .andExpect(jsonPath("$[0].ball_position").value(33))
-      .andExpect(jsonPath("$[0].winning").value(false))
-      .andExpect(jsonPath("$[0].amount").value(-10.00));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].user").value(1))
+            .andExpect(jsonPath("$[0].betType").value("COLOR"))
+            .andExpect(jsonPath("$[0].betValue").value("RED"))
+            .andExpect(jsonPath("$[0].betAmount").value(10.00))
+            .andExpect(jsonPath("$[0].ball_position").value(33))
+            .andExpect(jsonPath("$[0].winning").value(false))
+            .andExpect(jsonPath("$[0].amount").value(-10.00));
   }
 
   @Test
   void one_returnsGameWhenFound() throws Exception {
-    RouletteGameEntity game = new RouletteGameEntity(
-      1L,
-      BetType.NUMBER,
-      "17",
-      new BigDecimal("5.00"),
-      17,
-      true,
-      new BigDecimal("175.00"),
-      Instant.parse("2026-02-27T12:00:00Z")
+    GameView game = new GameView(1L, 1L, BetType.NUMBER, "17", new BigDecimal("5.00"), 17, true, new BigDecimal("175.00"), Instant.parse("2026-02-27T12:00:00Z")
     );
-    game.setId(1L);
 
-    when(repo.findById(1L)).thenReturn(Optional.of(game));
+    when(service.one(1L)).thenReturn(ResponseEntity.ok(game));
 
     mockMvc.perform(get("/casino/roulette/api/stat/1"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id").value(1))
-      .andExpect(jsonPath("$.user").value(1))
-      .andExpect(jsonPath("$.betType").value("NUMBER"))
-      .andExpect(jsonPath("$.betValue").value("17"))
-      .andExpect(jsonPath("$.betAmount").value(5.00))
-      .andExpect(jsonPath("$.ball_position").value(17))
-      .andExpect(jsonPath("$.winning").value(true))
-      .andExpect(jsonPath("$.amount").value(175.00));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.user").value(1))
+            .andExpect(jsonPath("$.betType").value("NUMBER"))
+            .andExpect(jsonPath("$.betValue").value("17"))
+            .andExpect(jsonPath("$.betAmount").value(5.00))
+            .andExpect(jsonPath("$.ball_position").value(17))
+            .andExpect(jsonPath("$.winning").value(true))
+            .andExpect(jsonPath("$.amount").value(175.00));
   }
 
   @Test
   void one_returns404WhenNotFound() throws Exception {
-    when(repo.findById(99L)).thenReturn(Optional.empty());
+    when(service.one(99L)).thenReturn(ResponseEntity.notFound().build());
 
     mockMvc.perform(get("/casino/roulette/api/stat/99"))
       .andExpect(status().isNotFound());
@@ -96,21 +79,21 @@ class RouletteGameControllerTest {
 
   @Test
   void delete_returns200WhenFound() throws Exception {
-    when(repo.existsById(1L)).thenReturn(true);
+    when(service.delete(1L)).thenReturn(ResponseEntity.ok().build());
 
     mockMvc.perform(delete("/casino/roulette/api/stat/1"))
-      .andExpect(status().isOk());
+            .andExpect(status().isOk());
 
-    verify(repo).deleteById(1L);
+    verify(service).delete(1L);
   }
 
   @Test
   void delete_returns404WhenNotFound() throws Exception {
-    when(repo.existsById(99L)).thenReturn(false);
+    when(service.delete(99L)).thenReturn(ResponseEntity.notFound().build());
 
     mockMvc.perform(delete("/casino/roulette/api/stat/99"))
-      .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
 
-    verify(repo, never()).deleteById(99L);
+    verify(service).delete(99L);
   }
 }
