@@ -132,7 +132,7 @@ class TClientTest {
                 new ResponseEntity<>(responseArray, HttpStatus.OK);
 
         when(restTemplate.getForEntity(
-                eq(anyString()),
+                anyString(),
                 eq(GetAllTransactionsTClientResponse[].class)
         )).thenReturn(responseEntity);
 

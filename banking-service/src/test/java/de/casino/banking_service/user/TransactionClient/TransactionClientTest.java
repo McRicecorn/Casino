@@ -101,7 +101,7 @@ class TransactionClientTest {
         var result = transactionClient.deleteTransactionsByUserId(1L);
 
         assertTrue(result.isFailure());
-        assertEquals(ErrorWrapper.USER_MODEL_INVALID_AMOUNT, result.getFailureData().get());
+        assertEquals(ErrorWrapper.EXTERNAL_SERVICE_ERROR, result.getFailureData().get());
     }
 
     @Test

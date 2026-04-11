@@ -37,7 +37,7 @@ services:
     networks:
       - casino_network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U slotmachine" ]
+      test: [ "CMD-SHELL", "pg_isready -d slotmachine_db -U slotmachine" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -79,7 +79,7 @@ services:
     networks:
       - casino_network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U roulette" ]
+      test: [ "CMD-SHELL", "pg_isready -d roulette_db -U roulette" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -120,7 +120,7 @@ services:
     networks:
       - casino_network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U banking" ]
+      test: [ "CMD-SHELL", "pg_isready -d banking_db -U banking" ]
       interval: 10s
       timeout: 5s
       retries: 5
