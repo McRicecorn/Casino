@@ -22,7 +22,7 @@ class TClientTest {
     @BeforeEach
     void setUp() {
         restTemplate = mock(RestTemplate.class);
-        tClient = new TClient(restTemplate);
+        tClient = new TClient(restTemplate, "http://localhost:8080");
     }
 
 
@@ -132,7 +132,7 @@ class TClientTest {
                 new ResponseEntity<>(responseArray, HttpStatus.OK);
 
         when(restTemplate.getForEntity(
-                eq("http://localhost:8080/casino/bank/api/transactions"),
+                eq(anyString()),
                 eq(GetAllTransactionsTClientResponse[].class)
         )).thenReturn(responseEntity);
 

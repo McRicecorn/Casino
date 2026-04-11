@@ -4,23 +4,26 @@ import de.casino.banking_service.stat.Responses.transactionResponses.GetAllTrans
 
 import de.casino.banking_service.stat.Utility.ErrorWrapper;
 import de.casino.banking_service.common.Result;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-
+@Service
 public class TClient implements ITransactionClientStats {
 
     private final RestTemplate restTemplate;
+    private final String baseUrl;
 
-    public TClient(RestTemplate restTemplate) {
+    public TClient(RestTemplate restTemplate, @Value("${banking.service.url:http://localhost:8080}") String bankingUrl) {
         this.restTemplate = restTemplate;
+        this.baseUrl = bankingUrl + "/casino/bank/api/transactions/user/";
     }
 
-    private final String baseUrl = "http://localhost:8080/casino/bank/api/transactions/user/";
 
     @Override
     public Result<Iterable<GetAllTransactionsTClientResponse>, ErrorWrapper> getAllTransactionsById(long userId) {
