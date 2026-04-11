@@ -1,49 +1,86 @@
-@startuml Slotmachine Service - Interne Architektur
+@startuml Slotmachine Service - Internal Component Architecture
 
 skinparam component {
     BackgroundColor<<controller>> LightCoral
     BackgroundColor<<handler>> Wheat
-    BackgroundColor<<service>> LightBlue
-    BackgroundColor<<logic>> LightSkyBlue
-    BackgroundColor<<client>> Thistle
+    BackgroundColor<<factory>> LightBlue
     BackgroundColor<<repository>> LightGreen
     BackgroundColor<<model>> LightYellow
-    BackgroundColor<<view>> LightGray
+    BackgroundColor<<view>> Thistle
     BackgroundColor<<util>> HoneyDew
+    BackgroundColor<<responseFactory>> PowderBlue
 }
 
-package "Slotmachine Service" <<Rectangle>> {
+title Slotmachine Service - Component Diagram\n(Fokus: Result & Error Handling)
 
-    component [SlotmachineController] as Controller <<component>>
-    component [SlotmachineHandler] as Handler <<component>>
-    component [SlotmachineRepository] as Repo <<component>>
+package "Slotmachine Service" {
 
-    package "Geschäftslogik" {
-        component [SlotmachineHandler] as Handler <<component>>
-        component [GameFactory] as Factory <<component>>
-        component [ResponseFactory] as RFactory <<component>>
+    package "Controller Layer" <<Rectangle>> {
+        component [SlotmachineController] as sc <<controller>>
     }
 
-    component [SlotmachineRepository] as Repo <<component>>
-
-    package "Data Models" {
-        component [dto] as dto <<component>>
-        component [dto] as dto <<component>>
+    package "Handler Layer (Game Logic)" <<Rectangle>> {
+        component [SlotmachineHandler] as sh <<handler>>
     }
 
-    component [Utility] as Util <<component>>
+    package "Factory Layer" <<Rectangle>> {
+        component [SlotmachineGameFactory] as gf <<factory>>
+        component [SlotmachineResponseFactory] as rf <<responseFactory>>
+    }
 
+    package "Model Layer" <<Rectangle>> {
+        component [SlotmachineGameEntity] as ge <<model>>
+    }
+
+    package "Repository Layer" <<Rectangle>> {
+        component [SlotmachineRepository] as repo <<repository>>
+    }
+
+    package "View / DTO Layer" <<Rectangle>> {
+        component [SlotRequest] as sreq <<view>>
+        component [SlotResponse] as sres <<view>>
+        component [StatsResponses] as stats <<view>>
+    }
+
+    package "Utility (Core)" <<Rectangle>> {
+        component [Result] as res <<util>>
+        component [ErrorResult] as eres <<util>>
+        component [ErrorWrapper] as ew <<util>>
+        component [SlotSymbols] as sym <<util>>
+    }
 }
 
-note right of Controller
-  Einstiegspunkt für
-  REST-Anfragen
-end note
+cloud "Banking Service" as banking
 
-note right of Handler
-  Zentrale Logik:
-  Berechnet Slot-Ergebnisse
-  und verwaltet Spielabläufe
-end note
+' --- Relationships ---
+
+' Controller nutzt Result zur Entscheidung
+sc --> sh : call
+sc ..> res : "unwraps"
+sc ..> ew : "reads error code"
+
+' Handler nutzt Result/Error zur Rückgabe
+sh --> res : "wraps success/failure"
+sh ..> ew : "uses error constants"
+sh --> sym : "calculates logic"
+sh --right--> banking : "external call"
+
+' Handler nutzt die Factories
+sh --> gf : "createSlotmachine(...)"
+sh --> rf : "createSlotmachineResponse(...)"
+
+' Factory & Model Validierung
+gf --> ge : creates
+ge ..> eres : "internal validation"
+rf --> sres : creates
+rf --> stats : creates
+
+' Persistence
+sh --> repo : saves Entity
+repo ..> ge : manages
+
+' DTO Usage
+sc ..> sreq
+sc ..> sres
 
 @enduml
