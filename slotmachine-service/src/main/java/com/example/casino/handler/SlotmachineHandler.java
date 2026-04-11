@@ -37,7 +37,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
     private final RestTemplate restTemplate;
 
 
-    @Value("${casino.banking.url}") // in application.properties
+    @Value("${banking.service.url}") // in application.properties
     private String bankingUrl;
 
     @Value("${spring.application.name}")

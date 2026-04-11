@@ -85,7 +85,7 @@ Dies startet alle 3 Microservices sowie die 3 zugehörigen Datenbanken (insgesam
 # 🎮 Benutzung
 Sobald die Container laufen, können die APIs über die integrierten Swagger-UI Oberflächen getestet werden:
 
-Banking-Service: http://localhost:8080/swagger-ui.html
+Banking-Service: http://localhost:8080/swagger-ui/index.html
 
 Roulette-Service: http://localhost:8081/swagger-ui.html
 

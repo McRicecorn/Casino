@@ -70,8 +70,7 @@ class TransactionClientTest {
     @Test
     void deleteTransactionsByUserId_non2xx_shouldReturnExternalServiceError() {
 
-        ResponseEntity<DeleteAllTransactionsClient> response =
-                new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        ResponseEntity<DeleteAllTransactionsClient> response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         when(restTemplate.exchange(
                 anyString(),
@@ -90,8 +89,7 @@ class TransactionClientTest {
     @Test
     void deleteTransactionsByUserId_nullBody_shouldReturnInvalidAmountError() {
 
-        ResponseEntity<DeleteAllTransactionsClient> response =
-                new ResponseEntity<>(null, HttpStatus.OK);
+        ResponseEntity<DeleteAllTransactionsClient> response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         when(restTemplate.exchange(
                 anyString(),

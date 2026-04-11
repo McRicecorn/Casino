@@ -22,6 +22,7 @@
     <modules>
         <module>slotmachine-service</module>
         <module>roulette-service</module>
+        <module>banking-service</module>
     </modules>
 
     <url/>

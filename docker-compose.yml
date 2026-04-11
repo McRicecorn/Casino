@@ -100,6 +100,7 @@ services:
       SPRING_DATASOURCE_USERNAME: banking
       SPRING_DATASOURCE_PASSWORD: passwort
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      BANKING_SERVICE_URL: http://banking-app:8080/casino/bank
     networks:
       - casino_network
     restart: unless-stopped
