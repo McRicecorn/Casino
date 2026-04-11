@@ -1,0 +1,130 @@
+@startuml Banking Service - Internal Architecture
+
+skinparam component {
+    BackgroundColor<<controller>> LightCoral
+    BackgroundColor<<handler>> Wheat
+    BackgroundColor<<repository>> LightGreen
+    BackgroundColor<<model>> LightYellow
+    BackgroundColor<<view>> LightGray
+    BackgroundColor<<util>> HoneyDew
+    BackgroundColor<<client>> LightBlue
+}
+
+title Casino Banking Service - Internal Architecture\n(With Response Layer)
+
+package "Banking Service" {
+
+    package "Controller Layer" {
+        component [UserController] as uc <<controller>>
+        component [TransactionController] as tc <<controller>>
+    }
+
+    package "Handler Layer" {
+        component [UserHandler] as uh <<handler>>
+        component [TransactionHandler] as th <<handler>>
+    }
+
+    package "Repository Layer" {
+        component [IUserRepository] as ur <<repository>>
+        component [ITransactionRepository] as tr <<repository>>
+    }
+
+    package "Client Layer (External Communication)" {
+        component [UserClient] as ucl <<client>>
+        component [TransactionClient] as tcl <<client>>
+    }
+
+    package "Model Layer" {
+        component [UserEntity] as user <<model>>
+        component [TransactionEntity] as txn <<model>>
+        component [UserFactory] as uf <<model>>
+        component [TransactionEntityFactory] as tf <<model>>
+    }
+
+    package "Response Layer (DTOs)" {
+
+        component [UserResponseFactory] as urf <<view>>
+        component [TransactionResponseFactory] as trf <<view>>
+
+        ' User Responses
+        component [GetUserResponse] as gur <<view>>
+        component [DeleteUserResponse] as dur <<view>>
+
+        ' Transaction Responses
+        component [GetAllTransactionResponse] as gatr <<view>>
+        component [GetUserTransactionResponse] as gutr <<view>>
+        component [PostTransactionResponse] as ptr <<view>>
+        component [PutTransactionResponse] as putr <<view>>
+        component [DeleteTransactionResponse] as dtr <<view>>
+        component [DeleteAllTransactionsResponse] as datr <<view>>
+    }
+
+    package "Util" {
+        component [Result] as result <<util>>
+        component [ErrorResult] as errorResult <<util>>
+        component [ErrorWrapper] as ew <<util>>
+        component [Games] as games <<util>>
+    }
+}
+
+' Controller -> Handler
+uc --> uh
+tc --> th
+
+' Handler -> Repository
+uh --> ur
+th --> tr
+
+' Handler -> Model / Factory
+uh --> uf
+th --> tf
+uh --> user
+th --> txn
+
+' Handler -> Response Factory
+uh --> urf
+th --> trf
+
+' Handler -> External Clients
+th --> ucl : calls User Service
+uh --> tcl : calls Transaction Service
+
+' Repository -> Model
+ur --> user
+tr --> txn
+
+' Controller -> Result Wrapper
+uc --> result
+tc --> result
+
+' Model -> Validation
+user --> errorResult
+txn --> errorResult
+
+' General Util usage
+uh --> ew
+th --> ew
+
+' Response Factory -> Responses
+urf --> gur
+urf --> dur
+
+trf --> gatr
+trf --> gutr
+trf --> ptr
+trf --> putr
+trf --> dtr
+trf --> datr
+
+' Controller returns Responses
+uc ..> gur
+uc ..> dur
+
+tc ..> gatr
+tc ..> gutr
+tc ..> ptr
+tc ..> putr
+tc ..> dtr
+tc ..> datr
+
+@enduml
