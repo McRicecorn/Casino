@@ -99,5 +99,5 @@ Weitere Informationen finden Sie unter: http://creativecommons.org/licenses/by/4
 
 # 👥 Autoren
 Catharina Hoppensack, Matr.-Nr.: 594129  
-Minh Duc Ngo, Matr.-Nr.: 594622
+Minh Duc Ngo, Matr.-Nr.: 594622  
 Elias Märker, Matr.-Nr.: 594298  
