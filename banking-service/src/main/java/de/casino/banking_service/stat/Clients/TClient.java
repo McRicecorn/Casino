@@ -11,17 +11,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class TClient implements ITransactionClientStats {
 
     private final RestTemplate restTemplate;
-    private final String baseUrl;
+    private final String apiRoot;
 
-    public TClient(RestTemplate restTemplate, @Value("${banking.service.url:http://localhost:8080}") String bankingUrl) {
+    public TClient(RestTemplate restTemplate, @Value("${banking.service.url:http://localhost:8080/casino/bank/api/}") String bankingUrl) {
         this.restTemplate = restTemplate;
-        this.baseUrl = bankingUrl + "/casino/bank/api/transactions/user/";
+        this.apiRoot = bankingUrl.endsWith("/") ? bankingUrl : bankingUrl + "/";
     }
 
 
@@ -30,11 +31,11 @@ public class TClient implements ITransactionClientStats {
         try {
             ResponseEntity<GetAllTransactionsTClientResponse[]> response =
                     restTemplate.getForEntity(
-                            baseUrl + userId,
+                            apiRoot + userId,
                             GetAllTransactionsTClientResponse[].class
                     );
 
-            return Result.success(List.of(response.getBody()));
+            return Result.success(Arrays.asList(response.getBody()));
 
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -49,7 +50,7 @@ public class TClient implements ITransactionClientStats {
         try {
             ResponseEntity<GetAllTransactionsTClientResponse[]> response =
                     restTemplate.getForEntity(
-                            "http://localhost:8080/casino/bank/api/transactions",
+                            apiRoot + "transactions",
                             GetAllTransactionsTClientResponse[].class
                     );
 
