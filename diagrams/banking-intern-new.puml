@@ -1,0 +1,77 @@
+@startuml Banking Service - Internal Component Architecture
+
+skinparam component {
+    BackgroundColor<<controller>> LightCoral
+    BackgroundColor<<handler>> Wheat
+    BackgroundColor<<factory>> LightBlue
+    BackgroundColor<<repository>> LightGreen
+    BackgroundColor<<model>> LightYellow
+    BackgroundColor<<dto>> Thistle
+    BackgroundColor<<util>> HoneyDew
+    BackgroundColor<<client>> Plum
+}
+
+title Banking Service - Internal Component Diagram\n(User & Transaction Submodules)
+
+package "Banking Service" {
+
+    ' --- USER SUBMODULE ---
+    package "User Submodule" <<Rectangle>> {
+        component [UserController] as uc <<controller>>
+        component [UserHandler] as uh <<handler>>
+        component [UserEntity] as ue <<model>>
+        component [UserFactory] as uf <<factory>>
+        component [UserResponseFactory] as urf <<factory>>
+        component [UserRepository] as urepo <<repository>>
+        component [TransactionClient] as tc_ext <<client>>
+    }
+
+    ' --- TRANSACTION SUBMODULE ---
+    package "Transaction Submodule" <<Rectangle>> {
+        component [TransactionController] as tc <<controller>>
+        component [TransactionHandler] as th <<handler>>
+        component [TransactionEntity] as te <<model>>
+        component [TransactionEntityFactory] as tef <<factory>>
+        component [TransactionResponseFactory] as trf <<factory>>
+        component [TransactionRepository] as trepo <<repository>>
+        component [UserClient] as uc_ext <<client>>
+    }
+
+    ' --- SHARED UTILS ---
+    package "Common / Utility" <<Rectangle>> {
+        component [Result / ErrorResult] as res <<util>>
+        component [ErrorWrapper] as ew <<util>>
+        component [Games Enum] as games <<util>>
+    }
+}
+
+' --- RELATIONSHIPS USER ---
+uc --> uh : "delegates"
+uh --> uf : "create user"
+uh --> urf : "map response"
+uh --> urepo : "persistence"
+uh --> tc_ext : "delete transactions\non user delete"
+uf --> ue : "instantiates"
+ue ..> res : "validates balance/names"
+
+' --- RELATIONSHIPS TRANSACTION ---
+tc --> th : "delegates"
+th --> tef : "create transaction"
+th --> trf : "map response"
+th --> trepo : "persistence"
+th --> uc_ext : "check balance /\ndeposit / withdraw"
+tef --> te : "instantiates"
+te ..> res : "validates amount"
+te ..> games : "uses"
+
+' --- CROSS-MODULE COMMUNICATION (Internal HTTP/RestTemplate) ---
+tc_ext --right--> tc : "HTTP DELETE"
+uc_ext --left--> uc : "HTTP GET/POST"
+
+' --- SHARED USAGE ---
+uh ..> res
+th ..> res
+uh ..> ew
+th ..> ew
+
+@enduml
