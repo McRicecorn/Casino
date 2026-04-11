@@ -71,6 +71,7 @@ public class SlotmachineHandler implements ISlotmachineHandler {
         long userId = request.getUser();
         BankingUserResponse user;
 
+        System.out.println("Rufe Banking-Service auf unter: " + userURL);
 
         try{
              user = restTemplate.getForObject(userURL, BankingUserResponse.class);
