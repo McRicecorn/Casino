@@ -10,6 +10,10 @@ skinparam component {
     BackgroundColor<<client>> LightBlue
 }
 
+
+
+
+
 title Casino Banking Service - Internal Architecture\n(With Response Layer)
 
 package "Banking Service" {
