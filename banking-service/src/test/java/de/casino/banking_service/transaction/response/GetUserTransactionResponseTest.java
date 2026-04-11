@@ -18,7 +18,7 @@ class GetUserTransactionResponseTest {
                 new GetUserTransactionResponse(id, amount);
 
         assertEquals(id, response.getId());
-        assertEquals(amount, response.getamount());
+        assertEquals(amount, response.getAmount());
     }
 
     @Test
@@ -29,6 +29,6 @@ class GetUserTransactionResponseTest {
                 new GetUserTransactionResponse(id, null);
 
         assertEquals(id, response.getId());
-        assertNull(response.getamount());
+        assertNull(response.getAmount());
     }
 }

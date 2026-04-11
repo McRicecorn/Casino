@@ -51,7 +51,7 @@ class TransactionResponseFactoryTest {
         GetUserTransactionResponse r = (GetUserTransactionResponse) response;
 
         assertEquals(1L, r.getId());
-        assertEquals(new BigDecimal("10.00"), r.getamount());
+        assertEquals(new BigDecimal("10.00"), r.getAmount());
     }
 
     @Test
