@@ -1,0 +1,49 @@
+@startuml Slotmachine Service - Interne Architektur
+
+skinparam component {
+    BackgroundColor<<controller>> LightCoral
+    BackgroundColor<<handler>> Wheat
+    BackgroundColor<<service>> LightBlue
+    BackgroundColor<<logic>> LightSkyBlue
+    BackgroundColor<<client>> Thistle
+    BackgroundColor<<repository>> LightGreen
+    BackgroundColor<<model>> LightYellow
+    BackgroundColor<<view>> LightGray
+    BackgroundColor<<util>> HoneyDew
+}
+
+package "Slotmachine Service" <<Rectangle>> {
+
+    component [SlotmachineController] as Controller <<component>>
+    component [SlotmachineHandler] as Handler <<component>>
+    component [SlotmachineRepository] as Repo <<component>>
+
+    package "Geschäftslogik" {
+        component [SlotmachineHandler] as Handler <<component>>
+        component [GameFactory] as Factory <<component>>
+        component [ResponseFactory] as RFactory <<component>>
+    }
+
+    component [SlotmachineRepository] as Repo <<component>>
+
+    package "Data Models" {
+        component [dto] as dto <<component>>
+        component [dto] as dto <<component>>
+    }
+
+    component [Utility] as Util <<component>>
+
+}
+
+note right of Controller
+  Einstiegspunkt für
+  REST-Anfragen
+end note
+
+note right of Handler
+  Zentrale Logik:
+  Berechnet Slot-Ergebnisse
+  und verwaltet Spielabläufe
+end note
+
+@enduml

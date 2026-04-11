@@ -1,0 +1,54 @@
+@startuml Casino Systemüberblick
+
+' Layout-Optimierung
+left to right direction
+skinparam packageStyle rectangle
+skinparam linetype polyline
+
+skinparam component {
+    BackgroundColor<<service>> LightBlue
+    BackgroundColor<<database>> LightGreen
+    BorderColor Black
+}
+
+title Casino Systemarchitektur - Komponentendiagramm
+
+actor "Client" as client
+
+package "Docker Network: casino-network" {
+
+    ' Die Services
+    package "Application Layer" {
+        component [Banking Service\n:8080] as banking <<service>>
+        component [Roulette Service\n:8081] as roulette <<service>>
+        component [Slotmachine Service\n:8082] as slots <<service>>
+    }
+
+    ' Die Datenbanken
+    package "Data Layer" {
+        database "PostgreSQL\nbanking_db" as banking_db <<database>>
+        database "PostgreSQL\nroulette_db" as roulette_db <<database>>
+        database "PostgreSQL\nslotmachine_db" as slots_db <<database>>
+    }
+
+    ' Client-Zugriffe
+    client --> banking : HTTP
+    client --> roulette : HTTP
+    client --> slots : HTTP
+
+    ' Interne Kommunikation
+    roulette ..> banking : verify user\n(HTTP)
+    slots ..> banking : verify user\n(HTTP)
+
+    ' DB-Verbindungen
+    banking --> banking_db : JDBC :5435
+    roulette --> roulette_db : JDBC :5434
+    slots --> slots_db : JDBC :5433
+}
+
+
+note bottom of banking : Users, Balances & Transactions
+note bottom of roulette : Roulette Logic, Stats & Rules
+note bottom of slots : Slot Machine Logic, Stats & Rules
+
+@enduml
