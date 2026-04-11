@@ -24,7 +24,7 @@ public class GetUserTransactionResponse implements ITransactionResponse{
         return id;
     }
 
-    public BigDecimal getamount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 

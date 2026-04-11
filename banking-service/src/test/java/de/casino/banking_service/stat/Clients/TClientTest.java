@@ -22,7 +22,6 @@ class TClientTest {
     @BeforeEach
     void setUp() {
         restTemplate = mock(RestTemplate.class);
-        tClient = new TClient(restTemplate, "http://localhost:8080");
     }
 
 

@@ -18,11 +18,11 @@ import java.util.List;
 public class TClient implements ITransactionClientStats {
 
     private final RestTemplate restTemplate;
-    private final String apiRoot;
+    private  String url = "http://localhost:8080/casino/bank/api/transactions";
 
-    public TClient(RestTemplate restTemplate, @Value("${banking.service.url:http://localhost:8080/casino/bank/api/}") String bankingUrl) {
+    public TClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.apiRoot = bankingUrl.endsWith("/") ? bankingUrl : bankingUrl + "/";
+        ;
     }
 
 
@@ -31,17 +31,23 @@ public class TClient implements ITransactionClientStats {
         try {
             ResponseEntity<GetAllTransactionsTClientResponse[]> response =
                     restTemplate.getForEntity(
-                            apiRoot + userId,
+                            url +"/user/" + userId,
                             GetAllTransactionsTClientResponse[].class
                     );
+            var body = response.getBody();
 
-            return Result.success(Arrays.asList(response.getBody()));
+            if (body == null) {
+                return Result.success(List.of());
+            }
+
+
+            return Result.success(Arrays.asList(body));
 
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 return Result.failure(ErrorWrapper.USER_WAS_NOT_FOUND);
             }
-            return Result.failure(ErrorWrapper.EXTERNAL_SERVICE_ERROR);
+            return Result.failure(ErrorWrapper.TRANSACTION_WAS_NOT_FOUND);
         }
     }
 
@@ -50,14 +56,19 @@ public class TClient implements ITransactionClientStats {
         try {
             ResponseEntity<GetAllTransactionsTClientResponse[]> response =
                     restTemplate.getForEntity(
-                            apiRoot + "transactions",
+                            url,
                             GetAllTransactionsTClientResponse[].class
                     );
+            var body = response.getBody();
 
-            return Result.success(List.of(response.getBody()));
+            if (body == null) {
+                return Result.success(List.of());
+            }
+
+            return Result.success(Arrays.asList(body));
 
         } catch (Exception e) {
-            return Result.failure(ErrorWrapper.EXTERNAL_SERVICE_ERROR);
+            return Result.failure(ErrorWrapper.TRANSACTION_WAS_NOT_FOUND);
         }
     }
 }
