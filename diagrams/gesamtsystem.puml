@@ -37,7 +37,7 @@ package "Docker Network: casino-network" {
     client --> slots : HTTP
 
     ' Interne Kommunikation
-    roulette ..> banking : verify user\n(HTTP)
+    roulette ..[#red]> banking : <color:red>planned (not implemented)</color>
     slots ..> banking : verify user\n(HTTP)
 
     ' DB-Verbindungen

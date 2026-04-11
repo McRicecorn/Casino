@@ -1,0 +1,73 @@
+@startuml Roulette Service - Internal Component Architecture
+
+skinparam component {
+    BackgroundColor<<controller>> LightCoral
+    BackgroundColor<<service>> Wheat
+    BackgroundColor<<repository>> LightGreen
+    BackgroundColor<<model>> LightYellow
+    BackgroundColor<<dto>> Thistle
+}
+
+title Roulette Service - Internal Component Diagram\n(Standalone Architecture)
+
+package "Roulette Service" {
+
+    package "Controller Layer" <<Rectangle>> {
+        component [RoulettePlayController] as rpc <<controller>>
+        component [RouletteGameController] as rgc <<controller>>
+        component [RouletteStatsController] as rsc <<controller>>
+        component [RouletteInfoController] as ric <<controller>>
+        component [ApiExceptionHandler] as aeh <<controller>>
+    }
+
+    package "Service Layer (Logic)" <<Rectangle>> {
+        component [RouletteGameService] as gs <<service>>
+        component [RouletteStatsService] as ss <<service>>
+        component [RouletteGameQueryService] as qs <<service>>
+        component [RouletteInfoService] as is <<service>>
+    }
+
+    package "Persistence Layer" <<Rectangle>> {
+        component [RouletteGameRepository] as repo <<repository>>
+    }
+
+    package "Model Layer" <<Rectangle>> {
+        component [RouletteGameEntity] as ge <<model>>
+    }
+
+    package "DTO / View Layer" <<Rectangle>> {
+        component [PlayRequest / Response] as pr <<dto>>
+        component [GameView] as gv <<dto>>
+        component [StatsViews] as sv <<dto>>
+        component [BetType] as bt <<dto>>
+    }
+}
+
+' --- Relationships ---
+
+' Controller -> Service
+rpc --> gs : "play"
+rgc --> qs : "get games"
+rsc --> ss : "get stats"
+ric --> is : "get rules/chances"
+
+' Service -> Repository
+gs --> repo : "save"
+ss --> repo : "count / sum"
+qs --> repo : "find"
+
+' Repository -> Model
+repo ..> ge : "manages"
+
+' Service -> DTO Mapping
+gs ..> pr : "processes"
+qs ..> gv : "creates"
+ss ..> sv : "creates"
+gs ..> bt : "uses"
+
+' Controller -> DTO
+rpc ..> pr : "receives/returns"
+rgc ..> gv : "returns"
+rsc ..> sv : "returns"
+
+@enduml

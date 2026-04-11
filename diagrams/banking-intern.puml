@@ -1,134 +1,77 @@
-@startuml Banking Service - Internal Architecture
+@startuml Banking Service - Internal Component Architecture
 
 skinparam component {
     BackgroundColor<<controller>> LightCoral
     BackgroundColor<<handler>> Wheat
+    BackgroundColor<<factory>> LightBlue
     BackgroundColor<<repository>> LightGreen
     BackgroundColor<<model>> LightYellow
-    BackgroundColor<<view>> LightGray
+    BackgroundColor<<dto>> Thistle
     BackgroundColor<<util>> HoneyDew
-    BackgroundColor<<client>> LightBlue
+    BackgroundColor<<client>> Plum
 }
 
-
-
-
-
-title Casino Banking Service - Internal Architecture\n(With Response Layer)
+title Banking Service - Internal Component Diagram\n(User & Transaction Submodules)
 
 package "Banking Service" {
 
-    package "Controller Layer" {
+    ' --- USER SUBMODULE ---
+    package "User Submodule" <<Rectangle>> {
         component [UserController] as uc <<controller>>
-        component [TransactionController] as tc <<controller>>
-    }
-
-    package "Handler Layer" {
         component [UserHandler] as uh <<handler>>
+        component [UserEntity] as ue <<model>>
+        component [UserFactory] as uf <<factory>>
+        component [UserResponseFactory] as urf <<factory>>
+        component [UserRepository] as urepo <<repository>>
+        component [TransactionClient] as tc_ext <<client>>
+    }
+
+    ' --- TRANSACTION SUBMODULE ---
+    package "Transaction Submodule" <<Rectangle>> {
+        component [TransactionController] as tc <<controller>>
         component [TransactionHandler] as th <<handler>>
+        component [TransactionEntity] as te <<model>>
+        component [TransactionEntityFactory] as tef <<factory>>
+        component [TransactionResponseFactory] as trf <<factory>>
+        component [TransactionRepository] as trepo <<repository>>
+        component [UserClient] as uc_ext <<client>>
     }
 
-    package "Repository Layer" {
-        component [IUserRepository] as ur <<repository>>
-        component [ITransactionRepository] as tr <<repository>>
-    }
-
-    package "Client Layer (External Communication)" {
-        component [UserClient] as ucl <<client>>
-        component [TransactionClient] as tcl <<client>>
-    }
-
-    package "Model Layer" {
-        component [UserEntity] as user <<model>>
-        component [TransactionEntity] as txn <<model>>
-        component [UserFactory] as uf <<model>>
-        component [TransactionEntityFactory] as tf <<model>>
-    }
-
-    package "Response Layer (DTOs)" {
-
-        component [UserResponseFactory] as urf <<view>>
-        component [TransactionResponseFactory] as trf <<view>>
-
-        ' User Responses
-        component [GetUserResponse] as gur <<view>>
-        component [DeleteUserResponse] as dur <<view>>
-
-        ' Transaction Responses
-        component [GetAllTransactionResponse] as gatr <<view>>
-        component [GetUserTransactionResponse] as gutr <<view>>
-        component [PostTransactionResponse] as ptr <<view>>
-        component [PutTransactionResponse] as putr <<view>>
-        component [DeleteTransactionResponse] as dtr <<view>>
-        component [DeleteAllTransactionsResponse] as datr <<view>>
-    }
-
-    package "Util" {
-        component [Result] as result <<util>>
-        component [ErrorResult] as errorResult <<util>>
+    ' --- SHARED UTILS ---
+    package "Common / Utility" <<Rectangle>> {
+        component [Result / ErrorResult] as res <<util>>
         component [ErrorWrapper] as ew <<util>>
-        component [Games] as games <<util>>
+        component [Games Enum] as games <<util>>
     }
 }
 
-' Controller -> Handler
-uc --> uh
-tc --> th
+' --- RELATIONSHIPS USER ---
+uc --> uh : "delegates"
+uh --> uf : "create user"
+uh --> urf : "map response"
+uh --> urepo : "persistence"
+uh --> tc_ext : "delete transactions\non user delete"
+uf --> ue : "instantiates"
+ue ..> res : "validates balance/names"
 
-' Handler -> Repository
-uh --> ur
-th --> tr
+' --- RELATIONSHIPS TRANSACTION ---
+tc --> th : "delegates"
+th --> tef : "create transaction"
+th --> trf : "map response"
+th --> trepo : "persistence"
+th --> uc_ext : "check balance /\ndeposit / withdraw"
+tef --> te : "instantiates"
+te ..> res : "validates amount"
+te ..> games : "uses"
 
-' Handler -> Model / Factory
-uh --> uf
-th --> tf
-uh --> user
-th --> txn
+' --- CROSS-MODULE COMMUNICATION (Internal HTTP/RestTemplate) ---
+tc_ext --right--> tc : "HTTP DELETE"
+uc_ext --left--> uc : "HTTP GET/POST"
 
-' Handler -> Response Factory
-uh --> urf
-th --> trf
-
-' Handler -> External Clients
-th --> ucl : calls User Service
-uh --> tcl : calls Transaction Service
-
-' Repository -> Model
-ur --> user
-tr --> txn
-
-' Controller -> Result Wrapper
-uc --> result
-tc --> result
-
-' Model -> Validation
-user --> errorResult
-txn --> errorResult
-
-' General Util usage
-uh --> ew
-th --> ew
-
-' Response Factory -> Responses
-urf --> gur
-urf --> dur
-
-trf --> gatr
-trf --> gutr
-trf --> ptr
-trf --> putr
-trf --> dtr
-trf --> datr
-
-' Controller returns Responses
-uc ..> gur
-uc ..> dur
-
-tc ..> gatr
-tc ..> gutr
-tc ..> ptr
-tc ..> putr
-tc ..> dtr
-tc ..> datr
+' --- SHARED USAGE ---
+uh ..> res
+th ..> res
+uh ..> ew
+th ..> ew
 
 @enduml
